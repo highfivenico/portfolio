@@ -112,14 +112,16 @@ const Hero = () => {
 
   // Paramètres réutilisables pour tout l’effet
   const CONFIG = {
-    MIN_VELOCITY: 200, // vitesse minimale pour déclencher la déformation
-    MAX_VELOCITY: 1000, // vitesse à laquelle la déformation atteint son max
+    MIN_VELOCITY: 500, // vitesse minimale pour déclencher la déformation
+    MAX_VELOCITY: 1500, // vitesse à laquelle la déformation atteint son max
     SCALE_X_RANGE: 0.15, // amplitude stretch horizontal
     SCALE_Y_RANGE: 0.08, // amplitude squash vertical
     SKEW_ANGLE: 18, // angle max de skew
     LETTER_SPACING_DELTA_MAX: 0.2, // tracking dynamique max
     RESET_DELAY: 0.05, // délai avant le retour à l’état normal
-    RESET_DURATION: 0.25, // durée du retour principal
+    RESET_DURATION: 0.1, // durée du retour principal
+    INERTIA_STRENGTH: 0.2, // réduit la force du retour (0.4–0.7 = doux)
+    MIN_INERTIA_INTENSITY: 0.2, // pas d’overshoot en dessous de ce seuil
   };
 
   /* -------------------------------------------------------
@@ -136,6 +138,7 @@ const Hero = () => {
       let lastIntensity = 0;
       let lastDirection = 1;
       let isAnimatingInertia = false;
+      let hadDeformation = false;
 
       // Applique immédiatement la déformation selon la vitesse
       const applyDeformation = (intensity, direction) => {
@@ -160,24 +163,46 @@ const Hero = () => {
       const scheduleReset = () => {
         if (resetCall) resetCall.kill();
 
+        // Si pas/peu de déformation, on revient juste au neutre sans overshoot
+        if (!hadDeformation || lastIntensity < CONFIG.MIN_INERTIA_INTENSITY) {
+          resetCall = gsap.delayedCall(CONFIG.RESET_DELAY, () => {
+            gsap.killTweensOf(innerTargets);
+            gsap.set(innerTargets, {
+              scaleX: 1,
+              scaleY: 1,
+              skewX: 0,
+              "--hero-letter-spacing-delta": "0em",
+            });
+            hadDeformation = false;
+            lastIntensity = 0;
+          });
+          return;
+        }
+
+        // Il y a eu une vraie déformation → inertie douce
+        const inertiaIntensity = lastIntensity * CONFIG.INERTIA_STRENGTH;
+
         resetCall = gsap.delayedCall(CONFIG.RESET_DELAY, () => {
           isAnimatingInertia = true;
 
           const tl = gsap.timeline({
             onComplete: () => {
               isAnimatingInertia = false;
+              hadDeformation = false;
+              lastIntensity = 0;
             },
           });
 
-          // Overshoot
+          // Overshoot (beaucoup plus léger qu’avant)
           tl.to(
             innerTargets,
             {
-              scaleX: 1 - lastIntensity * CONFIG.SCALE_X_RANGE * 0.6,
-              scaleY: 1 + lastIntensity * CONFIG.SCALE_Y_RANGE * 0.6,
-              skewX: -lastDirection * CONFIG.SKEW_ANGLE * lastIntensity * 0.8,
+              scaleX: 1 - inertiaIntensity * CONFIG.SCALE_X_RANGE * 0.4,
+              scaleY: 1 + inertiaIntensity * CONFIG.SCALE_Y_RANGE * 0.4,
+              skewX:
+                -lastDirection * CONFIG.SKEW_ANGLE * inertiaIntensity * 0.5,
               "--hero-letter-spacing-delta": `${
-                -CONFIG.LETTER_SPACING_DELTA_MAX * lastIntensity * 0.5
+                -CONFIG.LETTER_SPACING_DELTA_MAX * inertiaIntensity * 0.4
               }em`,
               duration: CONFIG.RESET_DURATION,
               ease: "power2.inOut",
@@ -194,7 +219,7 @@ const Hero = () => {
               scaleY: 1,
               skewX: 0,
               "--hero-letter-spacing-delta": "0em",
-              duration: 0.15,
+              duration: 0.18,
               ease: "power2.out",
               overwrite: "auto",
             },
@@ -235,10 +260,7 @@ const Hero = () => {
             const velocity = self.getVelocity();
             const speed = Math.abs(velocity);
 
-            // Lance toujours le reset (il s'annule si le scroll continue)
-            scheduleReset();
-
-            // Trop lent → retour à la forme normale
+            // Trop lent → pas de déformation, pas d’inertie "forte"
             if (speed < CONFIG.MIN_VELOCITY) {
               gsap.set(innerTargets, {
                 scaleX: 1,
@@ -246,10 +268,19 @@ const Hero = () => {
                 skewX: 0,
                 "--hero-letter-spacing-delta": "0em",
               });
+
+              // Si aucune vraie déformation n'a eu lieu pendant ce scroll,
+              // on s'assure qu'il n'y aura pas d’overshoot ensuite
+              if (!hadDeformation) {
+                lastIntensity = 0;
+              }
+
+              // IMPORTANT : on ne rappelle pas scheduleReset ici,
+              // il a déjà été programmé pendant la vraie déformation.
               return;
             }
 
-            // Calcul de l’intensité et direction
+            // Ici, on est au-dessus du seuil → on déforme
             const intensity = gsap.utils.clamp(
               0,
               1,
@@ -259,8 +290,12 @@ const Hero = () => {
 
             lastIntensity = intensity;
             lastDirection = direction;
+            hadDeformation = true;
 
             applyDeformation(intensity, direction);
+
+            // L’inertie ne se programme QUE quand on a réellement déformé
+            scheduleReset();
           },
 
           onLeave: immediateReset,

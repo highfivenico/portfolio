@@ -3,6 +3,7 @@ import { useRef, useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { projects } from "../data/projects";
+import ProjectsIcons from "./ProjectsIcons";
 
 gsap.registerPlugin(Draggable);
 
@@ -10,7 +11,6 @@ const Projects = () => {
   const sectionRef = useRef(null);
   const wrapperRef = useRef(null);
   const carouselRef = useRef(null);
-  const iconsRef = useRef(null);
 
   const cardsRef = useRef([]);
   const draggableRef = useRef(null);
@@ -274,34 +274,7 @@ const Projects = () => {
         </div>
       </div>
 
-      {/* Icônes */}
-      <div className="projects__icons-area" ref={iconsRef}>
-        <img className="tech-icon" src="/icons/sass.svg" alt="icon sass" />
-        <img className="tech-icon" src="/icons/html.svg" alt="icon html" />
-        <img className="tech-icon" src="/icons/css.svg" alt="icon css" />
-        <img className="tech-icon" src="/icons/git.svg" alt="icon git" />
-        <img className="tech-icon" src="/icons/github.svg" alt="icon github" />
-        <img className="tech-icon" src="/icons/js.svg" alt="icon javascript" />
-        <img
-          className="tech-icon"
-          src="/icons/mongoDB.svg"
-          alt="icon mongoDB"
-        />
-        <img className="tech-icon" src="/icons/node-logo.svg" alt="icon node" />
-        <img
-          className="tech-icon"
-          src="/icons/nodemon.svg"
-          alt="icon nodemon"
-        />
-        <img
-          className="tech-icon"
-          src="/icons/photoshop.svg"
-          alt="icon photoshop"
-        />
-        <img className="tech-icon" src="/icons/react.svg" alt="icon react" />
-        <img className="tech-icon" src="/icons/vitejs.svg" alt="icon vitejs" />
-        <img className="tech-icon" src="/icons/figma.svg" alt="icon figma" />
-      </div>
+      <ProjectsIcons />
     </section>
   );
 };
