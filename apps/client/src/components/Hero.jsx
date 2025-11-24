@@ -116,8 +116,8 @@ const Hero = () => {
     MAX_VELOCITY: 1000, // vitesse à laquelle la déformation atteint son max
     SCALE_X_RANGE: 0.15, // amplitude stretch horizontal
     SCALE_Y_RANGE: 0.08, // amplitude squash vertical
-    SKEW_ANGLE: 20, // angle max de skew
-    LETTER_SPACING_DELTA_MAX: 0.24, // tracking dynamique max
+    SKEW_ANGLE: 18, // angle max de skew
+    LETTER_SPACING_DELTA_MAX: 0.2, // tracking dynamique max
     RESET_DELAY: 0.05, // délai avant le retour à l’état normal
     RESET_DURATION: 0.25, // durée du retour principal
   };
@@ -226,7 +226,7 @@ const Hero = () => {
         scrollTrigger: {
           trigger: heroRef.current,
           start: "top top",
-          end: "bottom+=30% top",
+          end: "bottom+=80% top",
           scrub: true,
           pin: true,
 
@@ -356,9 +356,8 @@ const Hero = () => {
       {/* Texte + bouton */}
       <div className="hero__content" ref={contentRef}>
         <p className="hero__intro">
-          Bonjour, je suis Nicolas — <br />
-          développeur passionné par le design, l'expérience utilisateur et la
-          technique.
+          Bonjour, je suis Nicolas — développeur passionné par le design,
+          l'expérience utilisateur et la technique.
         </p>
 
         <a
