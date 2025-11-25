@@ -1,5 +1,5 @@
 // src/components/Projects.jsx
-import { useRef, useLayoutEffect } from "react";
+import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
 import { projects } from "../data/projects";
@@ -19,6 +19,19 @@ const Projects = () => {
   const apiRef = useRef({
     goToRelative: (step) => {},
   });
+
+  // --- 1) suivre la largeur de la fenêtre ---
+  const [viewportWidth, setViewportWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -47,7 +60,6 @@ const Projects = () => {
       let isDragging = false;
       let dragStartX = 0;
 
-      // 3) Scale dynamique + shrink global pendant drag
       const updateScale = () => {
         const bounds = wrapper.getBoundingClientRect();
         const center = bounds.left + bounds.width / 2;
@@ -73,7 +85,6 @@ const Projects = () => {
         });
       };
 
-      // 4) Index de la carte la plus proche du x actuel
       const getClosestIndex = () => {
         const currentX = parseFloat(gsap.getProperty(carousel, "x")) || 0;
 
@@ -91,7 +102,6 @@ const Projects = () => {
         return closestIndex;
       };
 
-      // 5) Snap vers une carte donnée
       const snapToIndex = (targetIndex) => {
         const clamped = gsap.utils.clamp(
           0,
@@ -103,7 +113,6 @@ const Projects = () => {
         const currentX = parseFloat(gsap.getProperty(carousel, "x")) || 0;
         const distance = Math.abs(currentX - targetX);
 
-        // si déjà quasi centrée → juste mettre à jour l'état visuel
         if (distance < 5) {
           isDragging = false;
           updateScale();
@@ -114,7 +123,7 @@ const Projects = () => {
 
         gsap.to(carousel, {
           x: targetX,
-          duration: 0.25, // aimantation courte
+          duration: 0.25,
           ease: "power2.out",
           onUpdate: () => {
             draggableRef.current && draggableRef.current.update();
@@ -128,15 +137,12 @@ const Projects = () => {
         snapToIndex(idx);
       };
 
-      // 6) Fin de drag : un petit mouvement suffit à changer de carte
       const finishDrag = (finalX) => {
         const delta = finalX - dragStartX;
-
-        // seuil très faible => slider "sensible"
         const threshold = 3;
 
         if (Math.abs(delta) > threshold) {
-          const direction = delta < 0 ? 1 : -1; // tiré vers la gauche → prochaine carte
+          const direction = delta < 0 ? 1 : -1;
           const current = getClosestIndex();
           snapToIndex(current + direction);
         } else {
@@ -144,7 +150,7 @@ const Projects = () => {
         }
       };
 
-      // 7) Draggable sans bounds, on gère tout au snap
+      // Draggable avec bounds à jour
       draggableRef.current = Draggable.create(carousel, {
         type: "x",
         inertia: true,
@@ -168,12 +174,11 @@ const Projects = () => {
         },
       })[0];
 
-      // 8) Centrer la première carte au chargement
+      // Centrer la première carte au chargement
       gsap.set(carousel, { x: targetPositions[0] });
       draggableRef.current.update();
       updateScale();
 
-      // 9) API flèches / clavier
       const goToRelative = (step) => {
         const current = getClosestIndex();
         snapToIndex(current + step);
@@ -201,7 +206,7 @@ const Projects = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [viewportWidth]); // <--- recalcul à chaque changement de largeur
 
   const handlePrev = () => {
     apiRef.current.goToRelative(-1);
@@ -213,16 +218,13 @@ const Projects = () => {
 
   return (
     <section className="projects" ref={sectionRef}>
-      {/* Titre */}
       <h2 className="projects__title">PROJECTS</h2>
 
-      {/* Court texte */}
       <p className="projects__subtitle">
         JE CONÇOIS DES INTERFACES MODERNES ET ÉLÉGANTES EN ALLIANT ESTHÉTIQUE,
         PERFORMANCE ET PRÉCISION.
       </p>
 
-      {/* Carousel */}
       <div className="projects__carousel-wrapper" ref={wrapperRef}>
         <div className="projects__carousel" ref={carouselRef}>
           {projects.map((project, index) => (
@@ -252,7 +254,6 @@ const Projects = () => {
           ))}
         </div>
 
-        {/* Flèches centrées sous le carousel */}
         <div className="projects__controls">
           <button
             className="projects__arrow projects__arrow--left"
