@@ -29,4 +29,12 @@
     cursor: grabbing;
     transform: scale(0.95);
   }
+
+  @media (max-width: 1024px) {
+    width: 100px;
+  }
+
+  @media (max-width: 768px) {
+    width: 80px;
+  }
 }

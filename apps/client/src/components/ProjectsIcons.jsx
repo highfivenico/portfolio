@@ -4,36 +4,52 @@ import Draggable from "gsap/Draggable";
 
 gsap.registerPlugin(Draggable);
 
-// Layout vertical global
+// Helpers utilitaires GSAP
+const { random, clamp } = gsap.utils;
+
+// Layout global des icônes
 const ICON_LAYOUT = {
-  floorOffset: 10, // marge visuelle par rapport au bas de la section
-  initialMinYFactor: 0.55, // zone verticale initiale (en proportion de la hauteur)
+  floorOffset: 10, // marge par rapport au bas de la zone
+  initialMinYFactor: 0.55, // début de la zone verticale de spawn (en proportion de la hauteur)
 };
 
-// Paramètres physiques
+// Paramètres physiques principaux
 const PHYSICS = {
-  gravity: 2000, // accélération vers le bas (plus grand = chute plus rapide)
-  airFriction: 0.992, // frottement global (proche de 1 = glisse longtemps)
-  restitution: 0.2, // rebond entre icônes (0 = mou, 1 = très rebondissant)
-  wallBounce: 0.2, // rebond sur murs / sol / plafond
-  angularFriction: 0.8, // ralentissement de la rotation
-  spinFactor: 0.3, // quantité de rotation ajoutée au "lâcher" après drag
-  maxDeltaTime: 0.04, // pour éviter les gros sauts de simulation
-  windSpeedThreshold: 900, // vitesse souris minimale pour "souffler" sur les icônes
-  windRadius: 250, // rayon d'effet autour de la souris pour le souffle
-  windForceBase: 480, // intensité de base du souffle
+  gravity: 2000, // accélération verticale vers le bas (px/s²)
+  airFriction: 0.992, // dissipation de vitesse (proche de 1 = glisse longue)
+  restitution: 0.3, // rebond entre icônes (0 = amorti, 1 = très rebondissant)
+  wallBounce: 0.5, // rebond sur les limites (murs / sol / plafond)
+  angularFriction: 0.8, // dissipation de la rotation
+  spinFactor: 0.3, // quantité de rotation injectée au "lâcher"
+  maxDeltaTime: 0.04, // dt maximum pour lisser les gros lags
 };
 
-// Repos (sleep) : on sépare translation et rotation
-const SLEEP = {
-  linearEnterSpeed: 40, // vitesse linéaire max pour entrer en repos
-  angularEnterSpeed: 25, // vitesse angulaire max pour entrer en repos
-  framesEnter: 10, // nb de frames calmes avant repos
+// Paramètres liés au drag
+const DRAG = {
+  velocityFollowFactor: 0.5, // proportion de la vitesse souris réinjectée dans le body pendant le drag
+  minReleaseSpeed: 50, // vitesse minimale pour déclencher une inertie au lâcher
+};
 
+// Paramètres du souffle (effet “coup de vent” au passage de la souris)
+const WIND = {
+  speedThreshold: 1000, // vitesse souris minimale pour déclencher le souffle
+  radius: 250, // rayon de portée autour du pointeur
+  forceBase: 300, // intensité de base du souffle
+};
+
+// Paramètres de collision (qualité visuelle et stabilité)
+const COLLISION = {
+  separationPadding: 1.5, // marge supplémentaire pour limiter le chevauchement résiduel
+};
+
+// Paramètres de repos (sleep) pour optimiser la simulation
+const SLEEP = {
+  linearEnterSpeed: 40, // vitesse linéaire max pour basculer en repos
+  angularEnterSpeed: 25, // vitesse angulaire max pour basculer en repos
+  framesEnter: 10, // nombre de frames calmes avant repos
   linearExitSpeed: 120, // vitesse linéaire pour sortir du repos
   angularExitSpeed: 90, // vitesse angulaire pour sortir du repos
-
-  collisionWakeImpulse: 40, // collision assez forte pour réveiller
+  collisionWakeImpulse: 40, // intensité de collision suffisante pour réveiller un body
 };
 
 // Liste des icônes
@@ -55,22 +71,22 @@ const iconsData = [
 
 const ProjectsIcons = () => {
   const areaRef = useRef(null);
-  const bodiesRef = useRef([]); // Corps "physiques" des icônes
-  const areaSizeRef = useRef({ width: 0, height: 0 }); // Taille de la zone
-  const draggablesRef = useRef([]); // Instances Draggable pour pouvoir les reconfigurer / kill
+  const bodiesRef = useRef([]); // Corps “physiques” des icônes
+  const areaSizeRef = useRef({ width: 0, height: 0 }); // Taille courante de la zone
+  const draggablesRef = useRef([]); // Instances Draggable (pour mise à jour / cleanup)
 
   const isInViewportRef = useRef(true);
   const isPageVisibleRef = useRef(true);
-  const isSimActiveRef = useRef(true); // simulation active (viewport + onglet)
+  const isSimActiveRef = useRef(true); // true si la simulation doit tourner (viewport + onglet visibles)
 
   useLayoutEffect(() => {
     const area = areaRef.current;
     if (!area) return;
 
-    const icons = Array.from(area.querySelectorAll(".tech-icon"));
-    if (!icons.length) return;
+    const iconEls = Array.from(area.querySelectorAll(".tech-icon"));
+    if (!iconEls.length) return;
 
-    // Mesure la taille actuelle de la zone d’icônes
+    // Mesure de la taille de la zone d’icônes
     const measureAreaSize = () => {
       const rect = area.getBoundingClientRect();
       areaSizeRef.current = {
@@ -90,52 +106,43 @@ const ProjectsIcons = () => {
       angularFriction,
       spinFactor,
       maxDeltaTime,
-      windSpeedThreshold,
-      windRadius,
-      windForceBase,
     } = PHYSICS;
 
     const { width: areaWidth, height: areaHeight } = areaSizeRef.current;
 
-    // Création des bodies (coordonnées centre)
-    const bodies = icons.map((el) => {
+    // Création des bodies (coordonnées basées sur le centre visuel)
+    const bodies = iconEls.map((el) => {
       const iconWidth = el.offsetWidth || 200;
       const radius = iconWidth * 0.5;
 
       const minY = areaHeight * initialMinYFactor;
       const maxY = areaHeight - floorOffset - radius;
 
-      // Position de départ aléatoire
-      const centerX = gsap.utils.random(
-        radius,
-        Math.max(radius, areaWidth - radius)
-      );
-      const centerY = gsap.utils.random(minY, Math.max(minY + 1, maxY));
-      const angle = gsap.utils.random(-12, 12);
+      // Position de départ aléatoire dans la zone autorisée
+      const cx = random(radius, Math.max(radius, areaWidth - radius));
+      const cy = random(minY, Math.max(minY + 1, maxY));
+      const angle = random(-12, 12);
 
-      // Conversion centre (x, y) → position DOM (coin haut-gauche)
+      // Conversion centre (cx, cy) → top-left DOM
       gsap.set(el, {
-        x: centerX - radius,
-        y: centerY - radius,
+        x: cx - radius,
+        y: cy - radius,
         rotation: angle,
-        transformOrigin: `${gsap.utils.random(30, 70)}% ${gsap.utils.random(
-          30,
-          70
-        )}%`,
+        transformOrigin: `${random(30, 70)}% ${random(30, 70)}%`,
       });
 
       return {
         el,
-        // Coordonnées "centre" utilisées par la physique
-        x: centerX,
-        y: centerY,
+        // Coordonnées de centre utilisées par la physique
+        x: cx,
+        y: cy,
         vx: 0,
         vy: 0,
         radius,
         angle,
-        angularVelocity: gsap.utils.random(-20, 20),
+        angularVelocity: random(-20, 20),
 
-        // État pour le drag
+        // État lié au drag
         isDragging: false,
         lastDragX: null,
         lastDragY: null,
@@ -153,15 +160,15 @@ const ProjectsIcons = () => {
 
     bodiesRef.current = bodies;
 
-    // Draggable (drag + inertie)
+    // Création des Draggables (drag + inertie)
     const draggables = bodies.map((body) => {
-      const draggable = Draggable.create(body.el, {
+      const d = Draggable.create(body.el, {
         type: "x,y",
-        bounds: area, // borné visuellement à l'intérieur de la section
+        bounds: area, // l’élément reste visuellement dans la zone
         onPress() {
           body.isDragging = true;
 
-          // réveil complet
+          // Sortie de repos : reset complet de l’état de sommeil
           body.isLinearSleeping = false;
           body.isAngularSleeping = false;
           body.linearSleepCounter = 0;
@@ -171,7 +178,7 @@ const ProjectsIcons = () => {
           body.vy = 0;
           body.angularVelocity *= 0.5;
 
-          // On convertit le top-left DOM → coordonnées centre pour la physique
+          // Conversion top-left DOM → centre physique
           const domX = this.x;
           const domY = this.y;
           body.x = domX + body.radius;
@@ -187,35 +194,39 @@ const ProjectsIcons = () => {
           const now = performance.now();
           const dt = (now - (body.lastDragTime || now)) / 1000 || 0.0001;
 
-          // Nouvelle position DOM (coin haut-gauche)
           const domX = this.x;
           const domY = this.y;
-          // Nouvelle position "centre"
-          const centerX = domX + body.radius;
-          const centerY = domY + body.radius;
+          const cx = domX + body.radius;
+          const cy = domY + body.radius;
 
-          const dx = centerX - body.lastDragX;
-          const dy = centerY - body.lastDragY;
+          const dx = cx - body.lastDragX;
+          const dy = cy - body.lastDragY;
 
           body.dragVx = dx / dt;
           body.dragVy = dy / dt;
 
-          body.lastDragX = centerX;
-          body.lastDragY = centerY;
+          body.lastDragX = cx;
+          body.lastDragY = cy;
           body.lastDragTime = now;
 
-          body.x = centerX;
-          body.y = centerY;
+          body.x = cx;
+          body.y = cy;
+
+          // Injection de vitesse pendant le drag :
+          // permet au body draggué de transmettre une poussée physique aux autres,
+          // même lors de déplacements lents.
+          body.vx = body.dragVx * DRAG.velocityFollowFactor;
+          body.vy = body.dragVy * DRAG.velocityFollowFactor;
         },
         onRelease() {
           body.isDragging = false;
 
           const speed = Math.hypot(body.dragVx, body.dragVy);
 
-          // Inertie au "lâcher" : vitesse + rotation
-          if (speed > 50) {
+          // Inertie à la fin du drag (lancer + rotation)
+          if (speed > DRAG.minReleaseSpeed) {
             const norm = speed / 500;
-            const boost = gsap.utils.clamp(0.4, 1, 1.1 + norm * 2);
+            const boost = clamp(0.4, 1, 1.1 + norm * 2);
 
             body.vx = body.dragVx * boost;
             body.vy = body.dragVy * boost;
@@ -232,7 +243,7 @@ const ProjectsIcons = () => {
         },
       })[0];
 
-      return draggable;
+      return d;
     });
 
     draggablesRef.current = draggables;
@@ -253,18 +264,17 @@ const ProjectsIcons = () => {
       if (dt > maxDeltaTime) dt = maxDeltaTime;
 
       const bodies = bodiesRef.current;
-      const { width: currentWidth, height: currentHeight } =
-        areaSizeRef.current;
-      const floorY = currentHeight - floorOffset;
+      const { width: w, height: h } = areaSizeRef.current;
+      const floorY = h - floorOffset;
 
-      // 1) Intégration (gravité, frottements, murs)
+      // 1) Intégration (gravité, frottements, collisions murs)
       for (const body of bodies) {
         if (body.isDragging) continue;
 
-        // Réveil automatique si vitesse importante
         const speed = Math.hypot(body.vx, body.vy);
         const angSpeed = Math.abs(body.angularVelocity);
 
+        // Sortie de repos automatique si la vitesse est significative
         if (
           speed > SLEEP.linearExitSpeed ||
           angSpeed > SLEEP.angularExitSpeed
@@ -275,7 +285,7 @@ const ProjectsIcons = () => {
           body.angularSleepCounter = 0;
         }
 
-        // Translation : seulement si pas en repos linéaire
+        // Translation uniquement si le body n’est pas en repos linéaire
         if (!body.isLinearSleeping) {
           body.vy += gravity * dt;
           body.vx *= airFriction;
@@ -288,7 +298,7 @@ const ProjectsIcons = () => {
           body.vy = 0;
         }
 
-        // Rotation : seulement si pas en repos angulaire
+        // Rotation uniquement si le body n’est pas en repos angulaire
         if (!body.isAngularSleeping) {
           body.angularVelocity *= angularFriction;
           body.angle += body.angularVelocity * dt;
@@ -298,13 +308,13 @@ const ProjectsIcons = () => {
 
         let hitWall = false;
 
-        // Bords gauche/droite
+        // Bords gauche / droite
         if (body.x - body.radius < 0) {
           body.x = body.radius;
           body.vx *= -wallBounce;
           hitWall = true;
-        } else if (body.x + body.radius > currentWidth) {
-          body.x = currentWidth - body.radius;
+        } else if (body.x + body.radius > w) {
+          body.x = w - body.radius;
           body.vx *= -wallBounce;
           hitWall = true;
         }
@@ -331,6 +341,8 @@ const ProjectsIcons = () => {
 
       // 2) Collisions entre icônes
       const len = bodies.length;
+      const minPadding = COLLISION.separationPadding;
+
       for (let i = 0; i < len; i++) {
         const bi = bodies[i];
         for (let j = i + 1; j < len; j++) {
@@ -340,16 +352,17 @@ const ProjectsIcons = () => {
           const dy = bj.y - bi.y;
           const dist = Math.hypot(dx, dy);
           const minDist = bi.radius + bj.radius;
+          const targetDist = minDist + minPadding;
 
-          if (dist > 0 && dist < minDist) {
+          if (dist > 0 && dist < targetDist) {
             const nx = dx / dist;
             const ny = dy / dist;
-            const overlap = (minDist - dist) / 2;
+            const overlap = (targetDist - dist) / 2;
 
             const biDraggingOnly = bi.isDragging && !bj.isDragging;
             const bjDraggingOnly = bj.isDragging && !bi.isDragging;
 
-            // Résolution de la pénétration
+            // Résolution de la pénétration (on privilégie la stabilité du drag)
             if (!biDraggingOnly && !bi.isLinearSleeping) {
               bi.x -= nx * overlap;
               bi.y -= ny * overlap;
@@ -371,7 +384,7 @@ const ProjectsIcons = () => {
 
               const impulseMag = Math.abs(impulse);
 
-              // Collision suffisamment forte → réveil complet
+              // Collision suffisamment marquée → sortie de repos des deux bodies
               if (impulseMag > SLEEP.collisionWakeImpulse) {
                 bi.isLinearSleeping = false;
                 bi.isAngularSleeping = false;
@@ -400,7 +413,7 @@ const ProjectsIcons = () => {
         }
       }
 
-      // 3) Mise à jour des états de repos (sleep) pour chaque body
+      // 3) Gestion de l’état de repos (sleep) pour chaque body
       for (const body of bodies) {
         if (body.isDragging) {
           body.isLinearSleeping = false;
@@ -438,7 +451,7 @@ const ProjectsIcons = () => {
           ) {
             body.isAngularSleeping = true;
             body.angularVelocity = 0;
-            // petit arrondi pour stabiliser visuellement
+            // Arrondi léger pour stabiliser visuellement l’orientation
             body.angle = Math.round(body.angle);
           }
         } else {
@@ -461,7 +474,7 @@ const ProjectsIcons = () => {
 
     gsap.ticker.add(update);
 
-    // Effet impulsion souris aux icones
+    // Effet de “souffle” au mouvement rapide de la souris
     let lastMouseX = null;
     let lastMouseY = null;
     let lastMouseTime = null;
@@ -486,7 +499,7 @@ const ProjectsIcons = () => {
         if (dt > 0) {
           const speed = Math.hypot(dx, dy) / dt;
 
-          if (speed > windSpeedThreshold) {
+          if (speed > WIND.speedThreshold) {
             const bodies = bodiesRef.current;
 
             for (const body of bodies) {
@@ -496,13 +509,13 @@ const ProjectsIcons = () => {
               const ddy = body.y - my;
               const dist = Math.hypot(ddx, ddy);
 
-              if (dist > 0 && dist < windRadius) {
-                const influence = (windRadius - dist) / windRadius;
-                const force = influence * (speed / 1000) * windForceBase;
+              if (dist > 0 && dist < WIND.radius) {
+                const influence = (WIND.radius - dist) / WIND.radius;
+                const force = influence * (speed / 1000) * WIND.forceBase;
                 const nx = ddx / dist;
                 const ny = ddy / dist;
 
-                // un coup de vent réveille l'icône
+                // Le souffle réveille l’icône
                 body.isLinearSleeping = false;
                 body.isAngularSleeping = false;
                 body.linearSleepCounter = 0;
@@ -524,16 +537,60 @@ const ProjectsIcons = () => {
 
     area.addEventListener("mousemove", onMouseMove);
 
-    // ResizeObserver met à jour la taille de la zone
+    // ResizeObserver : adapte la simulation aux changements de taille de la zone
     const resizeObserver = new ResizeObserver(() => {
       measureAreaSize();
+
+      const { width: newW, height: newH } = areaSizeRef.current;
+      const { floorOffset } = ICON_LAYOUT;
+      const floorY = newH - floorOffset;
+
+      const bodies = bodiesRef.current;
+
+      bodies.forEach((body) => {
+        const el = body.el;
+        if (!el) return;
+
+        // Taille réelle de l’icône (y compris media queries)
+        const iconWidth = el.offsetWidth || body.radius * 2;
+        const newRadius = iconWidth * 0.5;
+
+        body.radius = newRadius;
+
+        // Recalage dans les nouvelles bornes
+        body.x = clamp(newRadius, newW - newRadius, body.x);
+
+        const minCenterY = newRadius;
+        const maxCenterY = floorY - newRadius;
+        body.y = clamp(minCenterY, maxCenterY, body.y);
+
+        // Réveil léger + petite impulsion pour stabiliser après resize
+        body.isLinearSleeping = false;
+        body.isAngularSleeping = false;
+        body.linearSleepCounter = 0;
+        body.angularSleepCounter = 0;
+
+        if (body.y < maxCenterY - 5) {
+          body.vy += 200;
+        }
+
+        body.vx *= 0.5;
+        body.vy *= 0.5;
+        body.angularVelocity *= 0.5;
+      });
+
+      // On s’assure que la simulation est bien réactivée
+      isSimActiveRef.current = true;
+
+      // Mise à jour des bounds Draggable
       draggablesRef.current.forEach((d) => {
         if (d && d.applyBounds) d.applyBounds();
       });
     });
+
     resizeObserver.observe(area);
 
-    // Visibility / viewport
+    // Gestion de la visibilité de l’onglet
     const handleVisibility = () => {
       isPageVisibleRef.current = document.visibilityState === "visible";
       isSimActiveRef.current =
@@ -542,6 +599,7 @@ const ProjectsIcons = () => {
 
     document.addEventListener("visibilitychange", handleVisibility);
 
+    // Gestion de la présence dans le viewport
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
