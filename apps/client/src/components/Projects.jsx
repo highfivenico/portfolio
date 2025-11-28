@@ -346,7 +346,9 @@ const Projects = () => {
                   </div>
 
                   <div className="project-card__hover">
-                    {project.shortDescription}
+                    <h3 className="project-card__title">
+                      {project.shortDescription}
+                    </h3>
                     <button
                       type="button"
                       className="project-card__cta"
