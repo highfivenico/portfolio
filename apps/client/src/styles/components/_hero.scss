@@ -10,14 +10,12 @@
   display: flex;
   flex-direction: column;
 
-  /* Variables CSS pour les transformations */
-  // --word-scale-x: clamp(0.7, calc(100vw / 100), 1.3);
+  // Variables CSS pour les transformations
   --word-scale-x: 1;
   --hero-letter-spacing-base: -0.01em;
   --hero-letter-spacing-delta: 0em;
 
-  /* Responsive : plus l'Ã©cran est petit,
-     plus on compresse en largeur et on rÃ©duit le tracking de base */
+  // Responsive
   @media (max-width: 1400px) {
     --word-scale-x: 0.95;
   }
@@ -63,7 +61,7 @@
     4px 8px 10px rgba(24, 24, 24, 0.42);
   transform-origin: center center; /* Permet GSAP de bien centrer les transformations */
   transform: scaleX(var(--word-scale-x));
-  will-change: transform; /* Optimise les perfs lors de nombreuses transformations */
+  will-change: transform; /* Optimise les performances lors de nombreuses transformations */
 }
 
 .hero__word-inner {

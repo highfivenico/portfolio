@@ -2,7 +2,8 @@
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
-import { projects } from "../data/projects";
+import { fetchProjectsSummary, fetchProjectDetail } from "../api/projectsApi";
+import ProjectModal from "./ProjectModal";
 import ProjectsIcons from "./ProjectsIcons";
 
 gsap.registerPlugin(Draggable);
@@ -15,12 +16,23 @@ const Projects = () => {
   const cardsRef = useRef([]);
   const draggableRef = useRef(null);
 
+  // Données des projets chargées depuis l'API pour le carousel
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Données des projets chargées depuis l'API pour les détails dans la modale
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalProject, setModalProject] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError] = useState(null);
+
   // API interne pour contrôler depuis les flèches
   const apiRef = useRef({
-    goToRelative: (step) => {},
+    goToRelative: () => {},
   });
 
-  // --- 1) suivre la largeur de la fenêtre ---
+  // Suivre la largeur de la fenêtre
   const [viewportWidth, setViewportWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 0
   );
@@ -33,7 +45,39 @@ const Projects = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Charger les projets depuis l'API au montage
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadProjects() {
+      try {
+        setLoading(true);
+        const data = await fetchProjectsSummary();
+        if (!isMounted) return;
+        setProjects(data);
+        setError(null);
+      } catch (err) {
+        if (!isMounted) return;
+        console.error("Erreur lors du chargement des projets :", err);
+        setError(err.message || "Impossible de charger les projets.");
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadProjects();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   useLayoutEffect(() => {
+    // Ne rien faire tant que les projets ne sont pas chargés
+    if (!projects.length) return;
+
     const ctx = gsap.context(() => {
       const wrapper = wrapperRef.current;
       const carousel = carouselRef.current;
@@ -64,7 +108,7 @@ const Projects = () => {
         const bounds = wrapper.getBoundingClientRect();
         const center = bounds.left + bounds.width / 2;
 
-        const dragFactor = isDragging ? 0.96 : 1;
+        const dragFactor = isDragging ? 0.97 : 1;
 
         cards.forEach((card) => {
           if (!card) return;
@@ -154,12 +198,16 @@ const Projects = () => {
       draggableRef.current = Draggable.create(carousel, {
         type: "x",
         inertia: true,
+        dragClickables: true,
         bounds: {
           minX: targetPositions[targetPositions.length - 1],
           maxX: targetPositions[0],
         },
 
-        onPress: function () {
+        onPress: function (event) {
+          if (event.target.closest(".project-card__cta")) {
+            return;
+          }
           isDragging = true;
           dragStartX = this.x;
           updateScale();
@@ -206,14 +254,41 @@ const Projects = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [viewportWidth]); // <--- recalcul à chaque changement de largeur
+  }, [viewportWidth, projects.length]); // recalcul à chaque changement de largeur
 
+  // Handler de navigation au clavier du carousel
   const handlePrev = () => {
     apiRef.current.goToRelative(-1);
   };
-
   const handleNext = () => {
     apiRef.current.goToRelative(1);
+  };
+
+  // Handler d'ouverture de la modale de projet
+  const handleOpenModal = async (slug) => {
+    if (!slug) return;
+
+    setIsModalOpen(true);
+    setModalLoading(true);
+    setModalError(null);
+    setModalProject(null);
+
+    try {
+      const project = await fetchProjectDetail(slug);
+      setModalProject(project);
+    } catch (err) {
+      console.error("Erreur lors du chargement du projet :", err);
+      setModalError(err.message || "Impossible de charger ce projet.");
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Handler de fermeture de la modale de projet
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalProject(null);
+    setModalError(null);
   };
 
   return (
@@ -226,56 +301,103 @@ const Projects = () => {
       </p>
 
       <div className="projects__carousel-wrapper" ref={wrapperRef}>
-        <div className="projects__carousel" ref={carouselRef}>
-          {projects.map((project, index) => (
-            <article
-              key={project.id}
-              className="project-card"
-              ref={(el) => (cardsRef.current[index] = el)}
-            >
-              <div className="project-card__head">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+        {loading && (
+          <div className="projects__status projects__status--loading">
+            Chargement des projets...
+          </div>
+        )}
 
-              <div className="project-card__content">
-                {project.image && (
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="project-card__image"
-                  />
-                )}
-              </div>
+        {error && !loading && (
+          <div className="projects__status projects__status--error"></div>
+        )}
 
-              <div className="project-card__hover-text">{project.short}</div>
-            </article>
-          ))}
-        </div>
+        {!loading && !error && projects.length > 0 && (
+          <>
+            <div className="projects__carousel" ref={carouselRef}>
+              {projects.map((project, index) => (
+                <article
+                  key={project.id}
+                  className="project-card"
+                  ref={(el) => (cardsRef.current[index] = el)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && e.target === e.currentTarget) {
+                      e.preventDefault();
+                      handleOpenModal(project.slug);
+                    }
+                  }}
+                  tabIndex={0}
+                  // role="button"
+                  aria-label={`Voir les détails du projet ${project.title}`}
+                >
+                  <div className="project-card__head">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
 
-        <div className="projects__controls">
-          <button
-            className="projects__arrow projects__arrow--left"
-            type="button"
-            aria-label="Projet précédent"
-            onClick={handlePrev}
-          >
-            ‹
-          </button>
+                  <div className="project-card__content">
+                    {project.thumbnail && (
+                      <img
+                        src={project.thumbnail}
+                        alt={project.title}
+                        className="project-card__image"
+                      />
+                    )}
+                  </div>
 
-          <button
-            className="projects__arrow projects__arrow--right"
-            type="button"
-            aria-label="Projet suivant"
-            onClick={handleNext}
-          >
-            ›
-          </button>
-        </div>
+                  <div className="project-card__hover">
+                    {project.shortDescription}
+                    <button
+                      type="button"
+                      className="project-card__cta"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenModal(project.slug);
+                      }}
+                    >
+                      Voir le détail
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="projects__controls">
+              <button
+                className="projects__arrow projects__arrow--left"
+                type="button"
+                aria-label="Projet précédent"
+                onClick={handlePrev}
+              >
+                ‹
+              </button>
+
+              <button
+                className="projects__arrow projects__arrow--right"
+                type="button"
+                aria-label="Projet suivant"
+                onClick={handleNext}
+              >
+                ›
+              </button>
+            </div>
+          </>
+        )}
+
+        {!loading && !error && projects.length === 0 && (
+          <div className="projects__status projects__status--empty"></div>
+        )}
       </div>
 
       <ProjectsIcons />
+
+      <ProjectModal
+        isOpen={isModalOpen}
+        onRequestClose={handleCloseModal}
+        project={modalProject}
+        loading={modalLoading}
+        error={modalError}
+      />
     </section>
   );
 };

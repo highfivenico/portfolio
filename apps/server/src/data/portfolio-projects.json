@@ -1,0 +1,106 @@
+{
+  "projects": [
+    {
+      "id": "1",
+      "slug": "kasa",
+      "title": "Kasa",
+      "subtitle": "Refonte front-end d'une plateforme de location immobilière",
+      "shortDescription": "Refonte front-end d’un site de location immobilière en React, fidèle aux maquettes Figma et prête pour une future API.",
+      "thumbnail": "/images/projects/kasa/kasa.webp",
+      "technologies": ["React", "React Router", "Vite", "Sass"],
+      "year": 2024,
+      "role": "Développeur Front-end",
+      "type": "Projet de formation",
+      "seo": {
+        "title": "Kasa — Refonte front-end en React",
+        "description": "Refonte du site Kasa avec React, React Router, Vite et Sass : pages, composants, routage et logique d’interface prêts pour une future API Node.js.",
+        "keywords": [
+          "react",
+          "react router",
+          "vite",
+          "sass",
+          "kasa",
+          "portfolio",
+          "projet front-end"
+        ]
+      },
+      "links": {
+        "live": "",
+        "github": "https://github.com/highfivenico/kasa",
+        "video": null
+      },
+      "sections": [
+        {
+          "type": "intro",
+          "title": "Présentation",
+          "content": "Kasa est un projet de refonte front-end d’un site de location d’appartements, visant à remplacer une ancienne interface par une application moderne en React basée sur de nouvelles maquettes Figma."
+        },
+        {
+          "type": "objectives",
+          "title": "Objectifs",
+          "items": [
+            "Démarrer le projet React et développer les pages, composants et routes React Router en respectant les maquettes Figma responsives.",
+            "Implémenter la logique d’interface (galerie, collapses, navigation, gestion des URLs invalides) avec un code propre, maintenable et prêt pour une future API."
+          ]
+        },
+        {
+          "type": "gallery",
+          "title": "Aperçu visuel",
+          "images": [
+            "/images/projects/kasa/kasa-appartement.webp",
+            "/images/projects/kasa/kasa-about.webp"
+          ]
+        },
+        {
+          "type": "tech",
+          "title": "Stack technique",
+          "technologies": [
+            {
+              "label": "React",
+              "icon": "/icons/react.svg"
+            },
+            {
+              "label": "React Router",
+              "icon": "/icons/react-router.svg"
+            },
+            {
+              "label": "Vite",
+              "icon": "/icons/vitejs.svg"
+            },
+            {
+              "label": "Sass (SCSS)",
+              "icon": "/icons/sass.svg"
+            }
+          ]
+        },
+        {
+          "type": "skills",
+          "title": "Compétences développées",
+          "items": [
+            "Création de composants React réutilisables (Header, Card, Gallery, Collapse…).",
+            "Gestion de la navigation avec React Router, y compris routes dynamiques et page 404.",
+            "Utilisation des hooks (useState, useEffect, useParams, useNavigate) pour piloter l’état, les données simulées et les comportements interactifs."
+          ]
+        },
+        {
+          "type": "results",
+          "title": "Résultats & impact",
+          "items": [
+            "Interface fidèle aux maquettes Figma, responsive et fluide sur l’ensemble des pages.",
+            "Expérience utilisateur cohérente de la page home à la page 404, prête à être connectée à un back-end."
+          ]
+        },
+        {
+          "type": "improvements",
+          "title": "Perspectives d’amélioration",
+          "items": [
+            "Connexion à un back-end Node.js pour remplacer le fichier JSON par une API.",
+            "Mise en place d’un lazy loading pour le chargement des logements.",
+            "Amélioration des URLs des logements pour des identifiants plus cohérents lors de la création de la base de données."
+          ]
+        }
+      ],
+      "_extraSections": []
+    }
+  ]
+}
