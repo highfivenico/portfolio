@@ -1,3 +1,43 @@
+/* =========================================
+   Section TEXT (about)
+   ========================================= */
+
 .text {
-  height: 100vh;
+  background-color: $color-white;
+  color: $color-black;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 5rem 2rem;
+
+  &__inner {
+    max-width: 60vw;
+    margin: 0 auto;
+  }
+
+  &__content {
+    font-size: $font-size-xl;
+    line-height: 0.3;
+
+    // Tips SplitText : kerning + rendu
+    font-kerning: none;
+    text-rendering: optimizeSpeed;
+
+    .char {
+      display: inline-block; // indispensable pour x/scale
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 2rem 1.5rem;
+
+    &__inner {
+      max-width: 80vw;
+    }
+
+    &__content {
+      font-size: $font-size-lg;
+      line-height: 1;
+    }
+  }
 }
