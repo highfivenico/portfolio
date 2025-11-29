@@ -7,7 +7,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const Text = () => {
   const sectionRef = useRef(null);
-  const splitRef = useRef(null);
+  const splitsRef = useRef([]);
   const ctxRef = useRef(null);
 
   useLayoutEffect(() => {
@@ -19,64 +19,80 @@ const Text = () => {
 
     let cancelled = false;
 
-    const initSplitAndAnimation = () => {
+    const init = () => {
       if (cancelled) return;
 
-      // Nettoyage éventuel d’un ancien split
-      if (splitRef.current) {
-        splitRef.current.revert();
-        splitRef.current = null;
-      }
+      // Nettoyage des anciens SplitText
+      splitsRef.current.forEach((s) => s.revert && s.revert());
+      splitsRef.current = [];
 
-      const split = new SplitText(content, {
-        type: "chars",
-      });
+      // spans internes, pas les <p>
+      const targets = Array.from(
+        content.querySelectorAll(".text__paragraph-inner")
+      );
+      if (!targets.length) return;
 
-      splitRef.current = split;
+      // words + chars
+      const splits = targets.map(
+        (el) =>
+          new SplitText(el, {
+            type: "words,chars",
+            wordsClass: "word",
+            charsClass: "char",
+          })
+      );
+      splitsRef.current = splits;
 
-      const chars = split.chars || [];
-      if (!chars.length) return;
+      const paragraphsChars = splits.map((s) => s.chars || []);
+      const allChars = paragraphsChars.flat();
+      if (!allChars.length) return;
 
-      // Nettoyage éventuel d’un ancien contexte GSAP
       if (ctxRef.current) {
         ctxRef.current.revert();
         ctxRef.current = null;
       }
 
       const ctx = gsap.context(() => {
-        gsap.set(chars, {
-          x: 60,
-          scale: 1.2,
-          opacity: 0,
-          transformOrigin: "50% 50%",
-        });
+        gsap.set(allChars, { autoAlpha: 0 });
 
-        gsap.to(chars, {
-          x: 0,
-          scale: 1,
-          opacity: 1,
-          duration: 0.15,
-          ease: "power3.out",
-          stagger: 0.01,
+        const charStagger = 0.015;
+        const charDuration = 0.01;
+        const paragraphPause = 0.35;
+
+        const tl = gsap.timeline({
+          paused: true,
           scrollTrigger: {
             trigger: section,
             start: "top 70%",
             toggleActions: "play none none none",
             once: true,
+            onEnter: () => tl.play(0),
           },
+        });
+
+        paragraphsChars.forEach((chars, index) => {
+          if (!chars.length) return;
+
+          tl.to(
+            chars,
+            {
+              autoAlpha: 1,
+              duration: charDuration,
+              ease: "none",
+              stagger: charStagger,
+            },
+            index === 0 ? 0 : `>+=${paragraphPause}`
+          );
         });
       }, sectionRef);
 
       ctxRef.current = ctx;
     };
 
-    // Attend les fonts, sinon fallback
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready
-        .then(initSplitAndAnimation)
-        .catch(initSplitAndAnimation);
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(init).catch(init);
     } else {
-      initSplitAndAnimation();
+      init();
     }
 
     return () => {
@@ -87,10 +103,8 @@ const Text = () => {
         ctxRef.current = null;
       }
 
-      if (splitRef.current) {
-        splitRef.current.revert();
-        splitRef.current = null;
-      }
+      splitsRef.current.forEach((s) => s.revert && s.revert());
+      splitsRef.current = [];
     };
   }, []);
 
@@ -99,21 +113,27 @@ const Text = () => {
       <div className="text__inner">
         <div className="text__content">
           <p>
-            Je conçois des interfaces où exigence visuelle et rigueur technique
-            avancent ensemble, avec une attention précise portée aux détails
-            d’implémentation.
+            <span className="text__paragraph-inner">
+              Le travail mené sur des projets variés associant design exigeant
+              et enjeux techniques avancés m'a permis d’affiner mes capacités à
+              concevoir des interfaces performantes, robustes et soigneusement
+              maîtrisées.
+            </span>
           </p>
-          <br />
           <p>
-            Mon objectif est de créer des expériences web fluides, modernes et
-            fiables, en combinant un design sobre et lisible avec un code
-            robuste, performant et facile à maintenir.
+            <span className="text__paragraph-inner">
+              Grâce à une maîtrise de JavaScript, React et Node.js, et à une
+              attention particulière portée à la qualité du code et à
+              l’architecture front-end, je développe des expériences web
+              fluides, modernes et techniquement solides.
+            </span>
           </p>
-          <br />
           <p>
-            J’aime particulièrement travailler sur des interfaces où chaque
-            micro-interaction compte, tout en gardant une base technique propre,
-            structurée et évolutive.
+            <span className="text__paragraph-inner">
+              J’aime mettre cette expertise au service de projets où la
+              performance et la qualité de l’expérience utilisateur sont au cœur
+              des priorités.
+            </span>
           </p>
         </div>
       </div>

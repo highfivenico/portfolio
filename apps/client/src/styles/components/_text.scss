@@ -17,14 +17,25 @@
 
   &__content {
     font-size: $font-size-xl;
-    line-height: 0.3;
-
-    // Tips SplitText : kerning + rendu
+    line-height: 1.4;
     font-kerning: none;
     text-rendering: optimizeSpeed;
 
+    // chaque mot reste un bloc
+    .word {
+      display: inline-block;
+    }
+
     .char {
-      display: inline-block; // indispensable pour x/scale
+      display: inline;
+    }
+
+    p {
+      margin: 0 0 1.6rem;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
     }
   }
 
@@ -37,7 +48,7 @@
 
     &__content {
       font-size: $font-size-lg;
-      line-height: 1;
+      line-height: 1.2;
     }
   }
 }
