@@ -137,6 +137,13 @@
   text-decoration: none;
   word-break: break-word;
   pointer-events: auto;
+
+  &:focus-visible {
+    outline: 2px solid $color-black;
+    outline-offset: 3px;
+    color: $color-white;
+    background-color: $color-black;
+  }
 }
 
 @media (hover: hover) {

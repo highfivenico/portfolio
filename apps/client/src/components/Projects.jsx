@@ -27,6 +27,13 @@ const Projects = () => {
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState(null);
 
+  // Etat de la modale dans les listeners GSAP
+  const isModalOpenRef = useRef(false);
+
+  useEffect(() => {
+    isModalOpenRef.current = isModalOpen;
+  }, [isModalOpen]);
+
   // API interne pour contrôler depuis les flèches
   const apiRef = useRef({
     goToRelative: () => {},
@@ -233,8 +240,33 @@ const Projects = () => {
       };
 
       apiRef.current.goToRelative = goToRelative;
+      apiRef.current.goToIndex = (index) => {
+        snapToIndex(index);
+      };
 
       const onKeyDown = (e) => {
+        // Pas de navigation si la modale est ouverte
+        if (isModalOpenRef.current) return;
+
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+
+        const section = sectionRef.current;
+        if (!section) return;
+
+        // Vérifie si la section est dans le viewport
+        const rect = section.getBoundingClientRect();
+        const inView = rect.bottom > 0 && rect.top < window.innerHeight;
+
+        // Vérifie si le focus est dans la section
+        const activeElement = document.activeElement;
+        const hasFocusInside = activeElement && section.contains(activeElement);
+
+        if (!inView || !hasFocusInside) {
+          return;
+        }
+
+        e.preventDefault();
+
         if (e.key === "ArrowRight") {
           goToRelative(1);
         } else if (e.key === "ArrowLeft") {
@@ -319,6 +351,16 @@ const Projects = () => {
                   key={project.id}
                   className="project-card"
                   ref={(el) => (cardsRef.current[index] = el)}
+                  onFocus={() => {
+                    // Ne pas bouger le carousel si la modale est ouverte
+                    if (isModalOpenRef.current) return;
+                    if (
+                      apiRef.current &&
+                      typeof apiRef.current.goToIndex === "function"
+                    ) {
+                      apiRef.current.goToIndex(index);
+                    }
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && e.target === e.currentTarget) {
                       e.preventDefault();

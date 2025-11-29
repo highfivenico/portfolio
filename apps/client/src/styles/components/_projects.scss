@@ -258,6 +258,8 @@
     &:focus-visible {
       outline: 2px solid $color-white;
       outline-offset: 3px;
+      background: $color-white;
+      color: $color-black;
     }
   }
 

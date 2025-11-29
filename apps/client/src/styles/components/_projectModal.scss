@@ -105,8 +105,9 @@ body.ReactModal__Body--open {
   justify-content: center;
   transition: 0.15s ease;
 
-  &:hover {
-    background: rgba(24, 24, 24, 0.8);
+  &:hover,
+  &:focus-visible {
+    background: $color-black;
     color: $color-white;
   }
 
@@ -250,11 +251,17 @@ body.ReactModal__Body--open {
   color: $color-black;
   transition: 0.2s ease;
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     background: $color-black;
     color: $color-white;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(24, 24, 24, 0.24);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-black;
+    outline-offset: 3px;
   }
 }
 
