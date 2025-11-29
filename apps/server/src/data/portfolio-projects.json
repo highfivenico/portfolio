@@ -8,7 +8,7 @@
       "shortDescription": "Refonte front-end d’un site de location immobilière en React, fidèle aux maquettes Figma et prête pour une future API.",
       "thumbnail": "/images/projects/kasa/kasa.webp",
       "technologies": ["React", "React Router", "Vite", "Sass"],
-      "year": 2024,
+      "year": 2025,
       "role": "Développeur Front-end",
       "type": "Projet de formation",
       "seo": {
@@ -97,6 +97,416 @@
             "Connexion à un back-end Node.js pour remplacer le fichier JSON par une API.",
             "Mise en place d’un lazy loading pour le chargement des logements.",
             "Amélioration des URLs des logements pour des identifiants plus cohérents lors de la création de la base de données."
+          ]
+        }
+      ],
+      "_extraSections": []
+    },
+    {
+      "id": "2",
+      "slug": "mon-vieux-grimoire",
+      "title": "Mon Vieux Grimoire",
+      "subtitle": "Développement du back-end d’un site de notation de livres",
+      "shortDescription": "Création du back-end complet d’un site de notation de livres avec Express, MongoDB, authentification sécurisée et optimisation des images.",
+      "thumbnail": "/images/projects/grimoire/mon-vieux-grimoire.webp",
+      "technologies": [
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Mongoose",
+        "JWT",
+        "Sharp"
+      ],
+      "year": 2025,
+      "role": "Développeur Back-end",
+      "type": "Projet de formation",
+      "seo": {
+        "title": "Mon Vieux Grimoire — Développement Back-end en Node.js",
+        "description": "Création d'une API sécurisée en Node.js/Express pour un site de notation de livres, avec CRUD complet, authentification, optimisation des images et base MongoDB.",
+        "keywords": [
+          "nodejs",
+          "express",
+          "mongodb",
+          "mongoose",
+          "api rest",
+          "authentification",
+          "portfolio",
+          "back-end"
+        ]
+      },
+      "links": {
+        "live": "",
+        "github": "https://github.com/highfivenico/mon-vieux-grimoire",
+        "video": null
+      },
+      "sections": [
+        {
+          "type": "intro",
+          "title": "Présentation",
+          "content": "Mon Vieux Grimoire est un projet complet de développement back-end visant à créer une API sécurisée pour un site de référencement et de notation de livres, en collaboration avec un développeur front-end."
+        },
+        {
+          "type": "objectives",
+          "title": "Objectifs",
+          "items": [
+            "Mettre en place un serveur Express connecté à une base MongoDB pour gérer les livres et les notations.",
+            "Créer une API RESTful complète incluant les opérations CRUD, l’authentification sécurisée des utilisateurs et la gestion des images optimisées."
+          ]
+        },
+        {
+          "type": "gallery",
+          "title": "Aperçu visuel",
+          "images": [
+            "/images/projects/grimoire/mon-vieux-grimoire2.webp",
+            "/images/projects/grimoire/mon-vieux-grimoire3.webp"
+          ]
+        },
+        {
+          "type": "tech",
+          "title": "Stack technique",
+          "technologies": [
+            { "label": "Node.js", "icon": "/icons/node-logo.svg" },
+            { "label": "Express", "icon": "/icons/express.svg" },
+            { "label": "MongoDB", "icon": "/icons/mongoDB.svg" },
+            { "label": "Mongoose", "icon": "/icons/mongoose.svg" },
+            { "label": "Sharp", "icon": "/icons/sharp.svg" }
+          ]
+        },
+        {
+          "type": "skills",
+          "title": "Compétences développées",
+          "items": [
+            "Conception d’une API sécurisée avec gestion des routes, contrôleurs et modèles.",
+            "Implémentation d’une authentification robuste via JWT et sécurisation des données utilisateur.",
+            "Mise en place du traitement et de l’optimisation des images avec Sharp, incluant redimensionnement et compression."
+          ]
+        },
+        {
+          "type": "results",
+          "title": "Résultats & impact",
+          "items": [
+            "API stable et conforme aux spécifications techniques fournies par le front-end.",
+            "Gestion complète des livres, notations, utilisateurs et images avec une sécurité renforcée.",
+            "Base solide pour un site public prêt à être déployé et évolutif selon les besoins du client."
+          ]
+        },
+        {
+          "type": "improvements",
+          "title": "Perspectives d’amélioration",
+          "items": [
+            "Mettre en place des tests automatisés (Jest, Supertest) pour fiabiliser l’API.",
+            "Optimiser davantage le poids des images et améliorer les logs serveur pour le suivi en production."
+          ]
+        }
+      ],
+      "_extraSections": []
+    },
+    {
+      "id": "3",
+      "slug": "sophie-bluel",
+      "title": "Sophie Bluel",
+      "subtitle": "Développement Front-End d’un site d’architecte d’intérieur",
+      "shortDescription": "Création dynamique du site d’une architecte d’intérieur avec JavaScript, gestion de l’API, système de connexion et modale d’administration.",
+      "thumbnail": "/images/projects/bluel/sophie-bluel.webp",
+      "technologies": ["JavaScript", "HTML", "CSS", "Figma"],
+      "year": 2025,
+      "role": "Développeur Front-end",
+      "type": "Projet de formation",
+      "seo": {
+        "title": "Sophie Bluel — Développement Front-end en JavaScript",
+        "description": "Site dynamique d’architecte d’intérieur : galerie générée via API, système d’authentification, modale d’édition et gestion des médias.",
+        "keywords": [
+          "javascript",
+          "dom",
+          "modale",
+          "api rest",
+          "front-end",
+          "portfolio",
+          "architecte"
+        ]
+      },
+      "links": {
+        "live": "",
+        "github": "https://github.com/highfivenico/interior-architect",
+        "video": null
+      },
+      "sections": [
+        {
+          "type": "intro",
+          "title": "Présentation",
+          "content": "Sophie Bluel est un projet front-end visant à transformer une page statique en un site web dynamique d’architecte d’intérieur, entièrement piloté par JavaScript et connecté à une API pour gérer les travaux et l’administration."
+        },
+        {
+          "type": "objectives",
+          "title": "Objectifs",
+          "items": [
+            "Créer la galerie dynamique des travaux à partir de données récupérées via API et gérer les interactions utilisateurs.",
+            "Développer une page de connexion administrateur avec authentification sécurisée.",
+            "Mettre en place une modale complète permettant d’ajouter, supprimer et gérer les projets, en respectant le design Figma."
+          ]
+        },
+        {
+          "type": "gallery",
+          "title": "Aperçu visuel",
+          "images": [
+            "/images/projects/bluel/sophie-bluel2.webp",
+            "/images/projects/bluel/sophie-bluel3.webp",
+            "/images/projects/bluel/sophie-bluel4.webp"
+          ]
+        },
+        {
+          "type": "tech",
+          "title": "Stack technique",
+          "technologies": [
+            { "label": "JavaScript", "icon": "/icons/js.svg" },
+            { "label": "HTML", "icon": "/icons/html.svg" },
+            { "label": "CSS", "icon": "/icons/css.svg" },
+            { "label": "Figma", "icon": "/icons/figma.svg" }
+          ]
+        },
+        {
+          "type": "skills",
+          "title": "Compétences développées",
+          "items": [
+            "Manipulation avancée du DOM pour générer une galerie dynamique et des filtres interactifs.",
+            "Communication avec une API REST : requêtes GET, POST et DELETE, gestion des réponses asynchrones et des erreurs.",
+            "Création d’une page de connexion avec récupération d’un token JWT et gestion du mode édition.",
+            "Développement d’une modale d’administration avec navigation clavier, gestion des focus, upload d’images et validation de formulaire.",
+            "Organisation du code, gestion rigoureuse des event listeners et mise en place d’un comportement cohérent entre la page principale et la modale."
+          ]
+        },
+        {
+          "type": "results",
+          "title": "Résultats & impact",
+          "items": [
+            "Site entièrement dynamique, fidèle à la maquette Figma et fonctionnel grâce à la communication API.",
+            "Expérience administrateur fluide avec upload d’images, suppression de projets et mise à jour immédiate sans rechargement.",
+            "Architecture JavaScript claire et commentée, facilitant la relecture et l’évolution future du projet."
+          ]
+        },
+        {
+          "type": "improvements",
+          "title": "Perspectives d’amélioration",
+          "items": [
+            "Découper le JavaScript en modules pour une meilleure maintenabilité à long terme.",
+            "Vérifier le token auprès de l’API à chaque chargement afin d’améliorer la sécurité du mode édition.",
+            "Ajouter des animations CSS pour enrichir l’expérience utilisateur lors de l’ouverture/fermeture de la modale."
+          ]
+        }
+      ],
+      "_extraSections": []
+    },
+    {
+      "id": "4",
+      "slug": "nina-carducci",
+      "title": "Nina Carducci",
+      "subtitle": "Optimisation SEO, performance et accessibilité d’un site de photographe",
+      "shortDescription": "Audit et optimisation complète du site d’une photographe : performance, SEO, accessibilité et corrections de bugs pour améliorer visibilité et expérience utilisateur.",
+      "thumbnail": "/images/projects/carducci/nina-carducci.webp",
+      "technologies": [
+        "SEO",
+        "Performance",
+        "Accessibilité",
+        "Lighthouse",
+        "Wave",
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ],
+      "year": 2025,
+      "role": "Développeur Front-end & SEO",
+      "type": "Projet freelance",
+      "seo": {
+        "title": "Nina Carducci — Optimisation SEO et performance",
+        "description": "Optimisation du site d’une photographe : amélioration du référencement, accessibilité, performances et corrections de bugs pour une meilleure expérience utilisateur.",
+        "keywords": [
+          "seo",
+          "accessibilité",
+          "lighthouse",
+          "optimisation web",
+          "performance",
+          "freelance",
+          "photographe",
+          "portfolio"
+        ]
+      },
+      "links": {
+        "live": "",
+        "github": "https://github.com/highfivenico/Nina-Carducci-Dev",
+        "video": null
+      },
+      "sections": [
+        {
+          "type": "intro",
+          "title": "Présentation",
+          "content": "Nina Carducci est un projet d’optimisation web mené en tant que développeur freelance, visant à améliorer la performance, l’accessibilité et le référencement du site d’une photographe professionnelle."
+        },
+        {
+          "type": "objectives",
+          "title": "Objectifs",
+          "items": [
+            "Analyser le site existant à l’aide d’audits Lighthouse et Wave pour identifier les problèmes de performance, SEO et accessibilité.",
+            "Optimiser la vitesse de chargement grâce à la compression, conversion et redimensionnement des images.",
+            "Réorganiser et améliorer le code HTML, CSS et JavaScript pour des standards plus modernes et accessibles.",
+            "Renforcer le SEO en ajoutant métadonnées, sémantique adaptée et extraits enrichis."
+          ]
+        },
+        {
+          "type": "gallery",
+          "title": "Aperçu visuel",
+          "images": [
+            "/images/projects/carducci/nina-carducci2.webp",
+            "/images/projects/carducci/nina-carducci3.webp"
+          ]
+        },
+        {
+          "type": "tech",
+          "title": "Stack technique",
+          "technologies": [
+            { "label": "Lighthouse", "icon": "/icons/lighthouse.svg" },
+            { "label": "Wave", "icon": "/icons/wave.svg" },
+            { "label": "HTML", "icon": "/icons/html.svg" },
+            { "label": "CSS", "icon": "/icons/css.svg" },
+            { "label": "JavaScript", "icon": "/icons/js.svg" }
+          ]
+        },
+        {
+          "type": "skills",
+          "title": "Compétences développées",
+          "items": [
+            "Analyse de performance via Lighthouse et diagnostic d’accessibilité avec Wave.",
+            "Optimisation avancée des images (compression, formats WebP, redimensionnement) permettant un gain de 94% sur le poids total du site.",
+            "Amélioration du SEO : métadonnées, hiérarchie des titres, sémantique HTML et intégration Open Graph / Twitter Cards.",
+            "Corrections d’accessibilité : textes alternatifs, labels formulaires, contraste, favicon et navigation clavier.",
+            "Debug JavaScript, notamment la navigation de la modale et les filtres interactifs."
+          ]
+        },
+        {
+          "type": "results",
+          "title": "Résultats & impact",
+          "items": [
+            "Performances significativement améliorées grâce à une réduction drastique du poids des images.",
+            "Accessibilité renforcée avec un balisage conforme et une meilleure navigation clavier.",
+            "SEO optimisé permettant une visibilité accrue sur les moteurs de recherche et les réseaux sociaux.",
+            "Correction de tous les bugs identifiés dans la galerie et la modale, rendant le site plus fluide et fiable."
+          ]
+        },
+        {
+          "type": "improvements",
+          "title": "Perspectives d’amélioration",
+          "items": [
+            "Alléger le projet en supprimant progressivement jQuery, Bootstrap et le code inutilisé.",
+            "Améliorer la gestion du focus, les animations et la lisibilité typographique.",
+            "Continuer d’optimiser le contenu texte avec des mots-clés locaux ciblés."
+          ]
+        }
+      ],
+      "_extraSections": []
+    },
+    {
+      "id": "5",
+      "slug": "plaane",
+      "title": "Plaane",
+      "subtitle": "Plateforme mondiale dédiée aux musées et appareils aéronautiques",
+      "shortDescription": "Création d’une base de données mondiale des musées aéronautiques et de milliers de fiches d’avions, avec carte interactive, API Node.js et front-end en React.",
+      "thumbnail": "/images/projects/plaane/plaane.webp",
+      "technologies": [
+        "React",
+        "Vite",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Leaflet",
+        "Google Places API",
+        "Figma",
+        "Photoshop"
+      ],
+      "year": 2025,
+      "role": "Développeur Full-Stack",
+      "type": "Projet personnel",
+      "seo": {
+        "title": "Plaane — Plateforme mondiale aéronautique",
+        "description": "Projet personnel : base de données mondiale des musées d’aviation, fiches techniques d’avions, carte Leaflet, API Node.js/Express/MongoDB et interface React.",
+        "keywords": [
+          "aviation",
+          "aéronautique",
+          "react",
+          "leaflet",
+          "nodejs",
+          "mongodb",
+          "google places api",
+          "carte interactive",
+          "base de données",
+          "portfolio"
+        ]
+      },
+      "links": {
+        "live": "",
+        "github": "",
+        "video": null
+      },
+      "sections": [
+        {
+          "type": "intro",
+          "title": "Présentation",
+          "content": "Plaane est une plateforme personnelle en cours de développement visant à recenser l’ensemble des musées aéronautiques du monde et à proposer une base de données technique regroupant plusieurs milliers d’avions."
+        },
+        {
+          "type": "objectives",
+          "title": "Objectifs",
+          "items": [
+            "Centraliser et structurer des données mondiales sur les musées aéronautiques et les appareils existants.",
+            "Développer une interface interactive avec carte du monde et fiches détaillées pour les musées et avions.",
+            "Créer une API Node.js Express connectée à MongoDB pour gérer la base de données et les mises à jour dynamiques.",
+            "Automatiser la récupération des informations via l’API Google (adresses, horaires, tarifs, etc.)."
+          ]
+        },
+        {
+          "type": "gallery",
+          "title": "Aperçu visuel",
+          "images": ["/images/projects/plaane/plaane2.webp"]
+        },
+        {
+          "type": "tech",
+          "title": "Stack technique",
+          "technologies": [
+            { "label": "React", "icon": "/icons/react.svg" },
+            { "label": "Vite", "icon": "/icons/vitejs.svg" },
+            { "label": "Node.js", "icon": "/icons/node-logo.svg" },
+            { "label": "Express", "icon": "/icons/express.svg" },
+            { "label": "MongoDB", "icon": "/icons/mongoDB.svg" },
+            { "label": "Leaflet", "icon": "/icons/leaflet.svg" },
+            { "label": "Figma", "icon": "/icons/figma.svg" },
+            { "label": "Photoshop", "icon": "/icons/photoshop.svg" }
+          ]
+        },
+        {
+          "type": "skills",
+          "title": "Compétences développées",
+          "items": [
+            "Conception d’une architecture full-stack complète avec API REST Node.js/Express et base de données MongoDB.",
+            "Création d’une cartographie mondiale interactive avec Leaflet et intégration de marqueurs dynamiques.",
+            "Mise en place d’un front-end moderne en React avec gestion d’état, vues complexes et composants réutilisables.",
+            "Automatisation de la récupération et de la mise à jour des informations via l’API Google Places.",
+            "Conception UI/UX avancée via Figma et Photoshop pour structurer l’interface et les parcours utilisateurs."
+          ]
+        },
+        {
+          "type": "results",
+          "title": "Résultats & impact",
+          "items": [
+            "Infrastructure solide prête à accueillir un large volume de données réparties sur plusieurs milliers d’entrées.",
+            "Système de fiches détaillées fonctionnel pour les musées et les appareils aériens.",
+            "Carte du monde dynamique permettant une exploration intuitive et enrichie par des données réelles.",
+            "Base technique évolutive, pensée pour intégrer ultérieurement de nouveaux contenus et fonctionnalités."
+          ]
+        },
+        {
+          "type": "improvements",
+          "title": "Perspectives d’amélioration",
+          "items": [
+            "Ajout d’un moteur de recherche avancé avec filtres, tri et suggestions.",
+            "Développement d’un espace utilisateur pour créer des listes de favoris ou planifier des visites."
           ]
         }
       ],

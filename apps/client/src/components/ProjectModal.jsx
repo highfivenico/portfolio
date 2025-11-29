@@ -138,6 +138,7 @@ const ProjectModal = ({ isOpen, onRequestClose, project, loading, error }) => {
                             src={tech.icon}
                             alt={tech.label}
                             className="project-modal__tech-icon"
+                            onError={(e) => e.currentTarget.remove()}
                           />
                         )}
                         <span>{tech.label}</span>
