@@ -1,0 +1,108 @@
+/* =========================================
+   Section CONTACT
+   ========================================= */
+
+.contact {
+  position: relative;
+  min-height: 20vh;
+  padding: 6rem 2rem 3rem;
+  background: $color-white;
+  background: #223747;
+  // background-color: #022e3d;
+  color: $color-white;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 -15px 30px rgba(42, 42, 42, 0.42);
+
+  &__inner {
+    position: fixed;
+    padding-top: 4rem;
+    bottom: 0;
+    max-width: 80vw;
+    text-align: center;
+    z-index: 0;
+    transition: 0.35s ease;
+
+    &--visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    &--hidden {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+  }
+
+  &__subtitle {
+    font-size: $font-size-lg;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    letter-spacing: 0.1rem;
+  }
+
+  &__email {
+    display: inline-block;
+    font-size: $font-size-lg;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    text-decoration: none;
+    color: $color-white;
+    letter-spacing: 0.2rem;
+    transition: 0.2s ease;
+
+    &:hover,
+    &:focus {
+      transform: translateY(-2px);
+    }
+  }
+
+  &__links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 4rem;
+  }
+
+  &__icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: $color-white;
+
+    &-svg {
+      width: $font-size-xl;
+      height: $font-size-xl;
+      display: block;
+      fill: currentColor;
+      stroke: currentColor;
+      stroke-width: 0;
+      transition: 0.25s ease;
+    }
+    &:hover,
+    &:focus {
+      color: #14a8e7;
+    }
+  }
+
+  @media (max-width: 768px) {
+    min-height: 25vh;
+    padding: 4rem 1.5rem 2rem;
+
+    &__subtitle {
+      font-size: $font-size-md;
+    }
+
+    &__email {
+      font-size: $font-size-md;
+      word-break: break-all;
+    }
+
+    &__icon-svg {
+      width: $font-size-lg;
+      height: $font-size-lg;
+    }
+  }
+}

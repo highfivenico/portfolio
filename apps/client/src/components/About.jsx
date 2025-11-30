@@ -87,11 +87,11 @@ const About = () => {
             opacity: 0,
             duration: 0.8,
             ease: "power2.out",
-            delay: 0.5,
+            delay: 0.8,
             scrollTrigger: {
               trigger: section,
               start: "top 70%",
-              toggleActions: "play none none none",
+              toggleActions: "restart none none reset",
             },
           });
         }

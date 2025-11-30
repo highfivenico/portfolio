@@ -17,6 +17,7 @@
   align-items: center;
   box-shadow: 0 -15px 30px rgba(42, 42, 42, 0.42),
     0 15px 30px rgba(42, 42, 42, 0.42);
+  z-index: 2;
 
   /* Responsive padding */
   @media (max-width: 1024px) {
@@ -34,7 +35,6 @@
     letter-spacing: 0.05rem;
     color: $color-white;
     color: #ffffff;
-    background: #ffffff;
     text-shadow: 1px 3px 0 #8a8a934b, 1px 13px 5px #2a2a2b;
     // text-shadow: 5px 8px 20px rgba(18, 18, 19, 0.478);
     position: relative;
@@ -55,7 +55,7 @@
     text-shadow: 1px 1px 1px #27272889;
 
     @media (max-width: 1024px) {
-      font-size: $font-size-lg;
+      font-size: $font-size-md;
       letter-spacing: 0.12em;
     }
 
@@ -195,7 +195,7 @@
     justify-content: flex-end;
     inset: auto 0 0 0;
     padding: 100px 5% 2%;
-    font-size: $font-size-lg;
+    font-size: $font-size-md;
     background: linear-gradient(
       180deg,
       rgba(48, 48, 53, 0) 0%,
@@ -220,7 +220,7 @@
     text-transform: uppercase;
     letter-spacing: 0.08rem;
     line-height: 1.8rem;
-    font-size: $font-size-lg;
+    font-size: $font-size-md;
     font-weight: 500;
     opacity: 0;
     transform: translateY(-16px);

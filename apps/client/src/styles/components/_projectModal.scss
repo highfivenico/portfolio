@@ -97,7 +97,7 @@ body.ReactModal__Body--open {
   border: none;
   background: transparent;
   color: $color-black;
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   cursor: pointer;
   border-radius: 50%;
   display: flex;
@@ -138,7 +138,7 @@ body.ReactModal__Body--open {
 }
 
 .project-modal__subtitle {
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   color: $color-black;
   margin-bottom: 0.75rem;
 }
@@ -157,7 +157,7 @@ body.ReactModal__Body--open {
 }
 
 .project-modal__section-title {
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -166,7 +166,7 @@ body.ReactModal__Body--open {
 }
 
 .project-modal__text {
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   line-height: 1.6;
   color: $color-black;
 }
@@ -178,7 +178,7 @@ body.ReactModal__Body--open {
 }
 
 .project-modal__list-item {
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   line-height: 1.5;
   color: $color-black;
   margin-bottom: 0.25rem;
@@ -217,7 +217,7 @@ body.ReactModal__Body--open {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   color: $color-black;
   padding: 0.45rem 0.6rem;
   border-radius: 12px;
@@ -267,7 +267,7 @@ body.ReactModal__Body--open {
 
 // Etats de statut dans la modale (loading / error)
 .project-modal__status {
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   text-align: center;
   margin-top: 2rem;
 

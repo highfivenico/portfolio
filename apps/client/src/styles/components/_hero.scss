@@ -9,6 +9,7 @@
   background: linear-gradient(180deg, #fefefe 0%, #fffdfa 100%);
   display: flex;
   flex-direction: column;
+  z-index: 2;
 
   // Variables CSS pour les transformations
   --word-scale-x: 1;
