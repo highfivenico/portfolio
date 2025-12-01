@@ -4,12 +4,12 @@
 
 .projects {
   position: relative;
-  padding: 1rem 0 450px;
+  padding: 1rem 0 500px;
   background: linear-gradient(
     0deg,
     rgb(245, 245, 245) 35%,
-    rgb(134, 148, 154) 65%,
-    rgb(34, 42, 47) 100%
+    rgb(95, 154, 179) 70%,
+    #0a5575 100%
   );
   overflow: hidden;
   display: flex;
@@ -38,7 +38,7 @@
     text-shadow: 1px 3px 0 #8a8a934b, 1px 13px 5px #2a2a2b;
     // text-shadow: 5px 8px 20px rgba(18, 18, 19, 0.478);
     position: relative;
-    z-index: 1;
+    z-index: 4;
   }
 
   &__subtitle {
@@ -224,7 +224,7 @@
     font-weight: 500;
     opacity: 0;
     transform: translateY(-16px);
-    transition: opacity 0.26s ease-out, transform 0.26s ease-out;
+    transition: transform 0.26s ease-out;
   }
 
   &:hover &__title,

@@ -1,20 +1,13 @@
-import NavBar from "./components/NavBar";
-import Hero from "./components/Hero";
-import Projects from "./components/Projects";
-import Text from "./components/Text";
-import About from "./components/About";
-import Contact from "./components/Contact";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <div className="app">
-      <NavBar />
-      <Hero />
-      <Projects />
-      <Text />
-      <About />
-      <Contact />
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

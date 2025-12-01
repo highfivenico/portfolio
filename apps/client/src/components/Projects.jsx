@@ -1,18 +1,18 @@
-// src/components/Projects.jsx
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { fetchProjectsSummary, fetchProjectDetail } from "../api/projectsApi";
 import ProjectModal from "./ProjectModal";
 import ProjectsIcons from "./ProjectsIcons";
 
-gsap.registerPlugin(Draggable);
+gsap.registerPlugin(Draggable, ScrollTrigger);
 
 const Projects = () => {
+  const titleRef = useRef(null);
   const sectionRef = useRef(null);
   const wrapperRef = useRef(null);
   const carouselRef = useRef(null);
-
   const cardsRef = useRef([]);
   const draggableRef = useRef(null);
 
@@ -79,6 +79,32 @@ const Projects = () => {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const section = sectionRef.current;
+      const title = titleRef.current;
+      if (!section || !title) return;
+
+      // Parallax sur le titre
+      gsap.fromTo(
+        title,
+        { y: 100 }, // décalage initial vers le bas
+        {
+          y: -100, // décalage vers le haut à la fin
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, []);
 
   useLayoutEffect(() => {
@@ -325,7 +351,9 @@ const Projects = () => {
 
   return (
     <section className="projects" ref={sectionRef} id="projects">
-      <h2 className="projects__title">PROJECTS</h2>
+      <h2 className="projects__title" ref={titleRef}>
+        PROJECTS
+      </h2>
 
       <p className="projects__subtitle">
         JE CONÇOIS DES INTERFACES MODERNES ET ÉLÉGANTES EN ALLIANT ESTHÉTIQUE,
