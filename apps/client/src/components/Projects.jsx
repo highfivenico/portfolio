@@ -136,6 +136,9 @@ const Projects = () => {
 
       let isDragging = false;
       let dragStartX = 0;
+      // Interaction sur le bouton "Voir le détail"
+      let pressedOnCTA = false;
+      let indexOnPressCTA = 0;
 
       const updateScale = () => {
         const bounds = wrapper.getBoundingClientRect();
@@ -216,13 +219,15 @@ const Projects = () => {
 
       const finishDrag = (finalX) => {
         const delta = finalX - dragStartX;
-        const threshold = 3;
+        // Mouvement minimale pour le drag
+        const threshold = 18;
 
         if (Math.abs(delta) > threshold) {
           const direction = delta < 0 ? 1 : -1;
           const current = getClosestIndex();
           snapToIndex(current + direction);
         } else {
+          // Si le mouvement est trop petit la carte ne bouge pas
           snapToClosest();
         }
       };
@@ -238,19 +243,49 @@ const Projects = () => {
         },
 
         onPress: function (event) {
+          // Si l'interaction commence sur le bouton "Voir le détail"
           if (event.target.closest(".project-card__cta")) {
+            pressedOnCTA = true;
+            isDragging = false;
+            // Mémorise la carte active au moment du press
+            indexOnPressCTA = getClosestIndex();
+            dragStartX = this.x;
             return;
           }
+
+          // Drag normal
+          pressedOnCTA = false;
           isDragging = true;
           dragStartX = this.x;
           updateScale();
         },
-        onDrag: updateScale,
-        onThrowUpdate: updateScale,
+
+        onDrag: function () {
+          updateScale();
+        },
+
+        onThrowUpdate: function () {
+          updateScale();
+        },
+
         onRelease: function () {
+          if (pressedOnCTA) {
+            // Interaction démarrée sur le CTA la card ne bouge pas
+            pressedOnCTA = false;
+            snapToIndex(indexOnPressCTA);
+            return;
+          }
+
           finishDrag(this.x);
         },
+
         onDragEnd: function () {
+          if (pressedOnCTA) {
+            pressedOnCTA = false;
+            snapToIndex(indexOnPressCTA);
+            return;
+          }
+
           finishDrag(this.x);
         },
       })[0];
