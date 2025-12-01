@@ -389,7 +389,7 @@ const Hero = () => {
       </div>
 
       {/* Texte + bouton */}
-      <div className="hero__content" ref={contentRef}>
+      <div className="hero__content" ref={contentRef} id="hero">
         <p className="hero__intro">
           Bonjour, je suis Nicolas — développeur passionné par le design,
           l'expérience utilisateur et la technique.

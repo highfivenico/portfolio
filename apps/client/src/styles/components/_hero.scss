@@ -140,10 +140,10 @@
   pointer-events: auto;
 
   &:focus-visible {
-    outline: 2px solid $color-black;
+    outline: 2px solid #117dac;
     outline-offset: 3px;
     color: $color-white;
-    background-color: $color-black;
+    background-color: #117dac;
   }
 }
 

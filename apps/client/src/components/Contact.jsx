@@ -79,7 +79,6 @@ const Contact = () => {
         </a>
 
         <div className="contact__links">
-          {/* GitHub */}
           <a
             href="https://github.com/highfivenico"
             aria-label="GitHub"
@@ -114,8 +113,6 @@ const Contact = () => {
               />
             </svg>
           </a>
-
-          {/* LinkedIn */}
           <a
             href="https://www.linkedin.com/in/highfivenico/"
             className="contact__icon"
@@ -134,7 +131,6 @@ const Contact = () => {
             </svg>
           </a>
 
-          {/* CV / Télécharger */}
           <a
             href="/cv.pdf"
             className="contact__icon"

@@ -324,7 +324,7 @@ const Projects = () => {
   };
 
   return (
-    <section className="projects" ref={sectionRef}>
+    <section className="projects" ref={sectionRef} id="projects">
       <h2 className="projects__title">PROJECTS</h2>
 
       <p className="projects__subtitle">

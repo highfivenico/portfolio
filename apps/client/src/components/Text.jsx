@@ -354,7 +354,7 @@ const Text = () => {
   }, []);
 
   return (
-    <section className="text" ref={sectionRef} id="about">
+    <section className="text" ref={sectionRef} id="presentation">
       <div className="text__inner">
         <div className="text__content">
           <p>
