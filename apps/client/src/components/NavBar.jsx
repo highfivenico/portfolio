@@ -36,6 +36,15 @@ const NavBar = () => {
   const navHeightRef = useRef(0);
   const heroBoundsRef = useRef({ top: 0, bottom: 0 });
 
+  // Email anti-spam
+  const EMAIL_USER = "highfivenico";
+  const EMAIL_DOMAIN = "gmail.com";
+
+  const handleMailClick = (event) => {
+    event.preventDefault();
+    window.location.href = `mailto:${EMAIL_USER}@${EMAIL_DOMAIN}`;
+  };
+
   useEffect(() => {
     const hero = select(".hero");
     const heroContent = select(".hero__content");
@@ -159,9 +168,10 @@ const NavBar = () => {
 
         <div className="site-nav__icons">
           <a
-            href="mailto:highfivenico@gmail.com"
+            href="#contact"
             className="site-nav__icon"
             aria-label="Envoyer un email"
+            onClick={handleMailClick}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
               <path

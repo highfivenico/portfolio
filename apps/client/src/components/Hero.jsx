@@ -110,6 +110,15 @@ const Hero = () => {
   // Bloc de contenu (texte + bouton)
   const contentRef = useRef(null);
 
+  // Email anti-spam
+  const EMAIL_USER = "highfivenico";
+  const EMAIL_DOMAIN = "gmail.com";
+
+  const handleHeroMailClick = (event) => {
+    event.preventDefault();
+    window.location.href = `mailto:${EMAIL_USER}@${EMAIL_DOMAIN}`;
+  };
+
   // Paramètres réutilisables pour tout l’effet
   const CONFIG = {
     MIN_VELOCITY: 500, // vitesse minimale pour déclencher la déformation
@@ -396,9 +405,10 @@ const Hero = () => {
         </p>
 
         <a
-          href="mailto:highfivenico@gmail.com"
+          href="#contact"
           className="button button--stroke"
           data-block="button"
+          onClick={handleHeroMailClick}
         >
           <span className="button__label">ME CONTACTER</span>
           <div className="button__flair"></div>

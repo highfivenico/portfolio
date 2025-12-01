@@ -5,6 +5,15 @@ const Contact = () => {
   const [contactMinHeight, setContactMinHeight] = useState(0);
   const innerRef = useRef(null);
 
+  // Email anti-spam
+  const EMAIL_USER = "highfivenico";
+  const EMAIL_DOMAIN = "gmail.com";
+
+  const handleContactMailClick = (event) => {
+    event.preventDefault();
+    window.location.href = `mailto:${EMAIL_USER}@${EMAIL_DOMAIN}`;
+  };
+
   // Gestion de l'apparition en bas de page
   useEffect(() => {
     const handleScroll = () => {
@@ -74,7 +83,11 @@ const Contact = () => {
           Un projet, une idée, une envie de collaborer ?
         </p>
 
-        <a href="mailto:highfivenico@gmail.com" className="contact__email">
+        <a
+          href="#contact"
+          className="contact__email"
+          onClick={handleContactMailClick}
+        >
           highfivenico@gmail.com
         </a>
 
