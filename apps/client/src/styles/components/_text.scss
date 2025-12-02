@@ -41,15 +41,15 @@
   }
 
   @media (max-width: 768px) {
-    min-height: 80vh;
-    padding: 2rem 1.5rem;
+    min-height: 60vh;
+    padding: 4rem 1.5rem;
 
     &__inner {
-      max-width: 80vw;
+      max-width: 70vw;
     }
 
     &__content {
-      font-size: $font-size-lg;
+      font-size: $font-size-md;
       line-height: 1.2;
     }
   }

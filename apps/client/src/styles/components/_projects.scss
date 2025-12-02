@@ -267,6 +267,11 @@
       background: $color-white;
       color: $color-black;
     }
+
+    @media (max-width: 768px) {
+      font-size: $font-size-xs;
+      letter-spacing: 0.05em;
+    }
   }
 
   &:hover &__cta,

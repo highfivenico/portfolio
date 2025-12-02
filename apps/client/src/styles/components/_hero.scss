@@ -106,7 +106,7 @@
 
 .hero__intro {
   color: $color-black;
-  font-size: 2rem;
+  font-size: $font-size-xl;
   max-width: 40vw;
   margin: 0 0 2rem 0;
   line-height: 1.4;
@@ -116,6 +116,7 @@
   }
 
   @media (max-width: 768px) {
+    font-size: $font-size-lg;
     max-width: 70vw;
   }
 }

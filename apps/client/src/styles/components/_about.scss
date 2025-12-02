@@ -6,7 +6,7 @@
   position: relative;
   padding: 5rem 2rem 15rem;
   background-color: #117dac;
-  background-image: url("../public/images/noise.png");
+  background-image: url("/images/noise.png");
   background-repeat: repeat;
   color: $color-white;
   overflow: hidden;
@@ -50,15 +50,15 @@
   }
 
   @media (max-width: 768px) {
-    min-height: 60vh;
-    padding: 2rem 1.5rem;
+    min-height: 50vh;
+    padding: 4rem 1.5rem;
 
     &__inner {
-      max-width: 80vw;
+      max-width: 70vw;
     }
 
     &__text {
-      font-size: $font-size-lg;
+      font-size: $font-size-md;
       line-height: 1.2;
     }
   }
