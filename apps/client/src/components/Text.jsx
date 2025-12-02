@@ -27,6 +27,7 @@ const Text = () => {
 
     let cancelled = false;
 
+    // Detection du type de pointer (pour désactiver l'effet sur mobile/Tablette)
     const isFinePointer =
       typeof window !== "undefined" &&
       window.matchMedia &&
@@ -34,6 +35,7 @@ const Text = () => {
 
     const pullDistance = 50;
 
+    // Calcule le centre de chaque lettre
     const updateCharPositions = () => {
       const chars = charsRef.current;
       if (!chars || !chars.length) return;
@@ -47,6 +49,7 @@ const Text = () => {
       });
     };
 
+    // Evite de calculer le centre de chaque lettre trop souvent (performance)
     const requestUpdateCharPositions = () => {
       if (positionsRafRef.current != null) return;
       positionsRafRef.current = requestAnimationFrame(() => {
@@ -55,6 +58,7 @@ const Text = () => {
       });
     };
 
+    // Vérifie les lettres déplacées par la souris et les ramène
     const resetPulledChars = () => {
       const chars = charsRef.current;
       if (!chars || !chars.length) return;
@@ -71,6 +75,7 @@ const Text = () => {
       });
     };
 
+    // Gestion du survol magnetique des lettres après l'animation principale
     const handlePointerMove = (e) => {
       if (!hoverEnabledRef.current) return; // texte pas encore apparu
       if (!hoverActiveRef.current) return; // section pas vraiment visible
@@ -80,9 +85,11 @@ const Text = () => {
       const chars = charsRef.current;
       if (!chars || !chars.length) return;
 
+      // Coordonnées du pointer
       const pointerX = e.clientX;
       const pointerY = e.clientY;
 
+      // Gestion du magnetisme de la souris
       chars.forEach((char) => {
         const center = char._center;
         if (!center) return;
@@ -113,6 +120,7 @@ const Text = () => {
         }
       });
 
+      // remet les lettre en place après explosion
       if (resetAllRef.current) {
         resetAllRef.current = false;
         gsap.to(chars, {
@@ -125,6 +133,7 @@ const Text = () => {
       }
     };
 
+    // Relache les lettres lorsque le pointeur quitte la section
     const handlePointerLeave = () => {
       if (!hoverEnabledRef.current) return;
       resetPulledChars();
@@ -136,10 +145,12 @@ const Text = () => {
       if (!chars || !chars.length) return;
       if (clickedRef.current) return;
 
+      // Empêche plusieurs explosions simultanées
       clickedRef.current = true;
 
       gsap.killTweensOf(chars);
 
+      // Physique de l'explosion et retour des lettres
       const tween = gsap.to(chars, {
         duration: 1.6,
         physics2D: {
@@ -162,12 +173,14 @@ const Text = () => {
       });
     };
 
+    // Condition pour jouer l'animation
     const handlePointerUp = (e) => {
       if (!hoverEnabledRef.current) return;
       if (!hoverActiveRef.current) return;
       if (!isFinePointer) return;
       if (clickedRef.current) return;
 
+      // Recherche la lettre la plus proche du clic
       const chars = charsRef.current;
       if (!chars || !chars.length) return;
 
@@ -177,6 +190,7 @@ const Text = () => {
       let minDist = Infinity;
       let closestIndex = 0;
 
+      // Une fois la lettre proche trouvée l'explosion est déclanchée
       chars.forEach((char, index) => {
         const center = char._center;
         if (!center) return;
@@ -194,6 +208,7 @@ const Text = () => {
       explodeFromIndex(closestIndex);
     };
 
+    // Initialise le découpage du texte lettre par lettre
     const init = () => {
       if (cancelled) return;
 
@@ -229,6 +244,7 @@ const Text = () => {
         ctxRef.current = null;
       }
 
+      // Fixe l'état initial des lettres
       const ctx = gsap.context(() => {
         gsap.set(allChars, {
           autoAlpha: 0,
@@ -242,6 +258,7 @@ const Text = () => {
         const charDuration = 0.01;
         const paragraphPause = 0.35;
 
+        // Timeline d'apparition des lettres
         const tl = gsap.timeline({
           paused: true,
           scrollTrigger: {
@@ -309,13 +326,14 @@ const Text = () => {
       requestUpdateCharPositions();
     };
 
+    // Attend que les fonts soient chargées
     if (document.fonts?.ready) {
       document.fonts.ready.then(init).catch(init);
     } else {
       init();
     }
 
-    // Resize → on recalcule les positions (throttlé)
+    // Recalcule les positions au resize
     const handleResize = () => {
       requestUpdateCharPositions();
     };
@@ -325,6 +343,7 @@ const Text = () => {
     section.addEventListener("pointerleave", handlePointerLeave);
     section.addEventListener("pointerup", handlePointerUp);
 
+    // Nettoie les listeners, animation, GSAP au démontage
     return () => {
       cancelled = true;
 
@@ -353,6 +372,7 @@ const Text = () => {
     };
   }, []);
 
+  // Rendu du composant
   return (
     <section className="text" ref={sectionRef} id="presentation">
       <div className="text__inner">

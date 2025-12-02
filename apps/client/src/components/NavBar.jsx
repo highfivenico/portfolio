@@ -100,6 +100,7 @@ const NavBar = () => {
     updateLayoutMetrics();
     handleScroll();
 
+    // Ecouteurs d'événements scroll et resize avec passive pour le scroll pour performance améliorée
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleResize);
 
@@ -109,6 +110,7 @@ const NavBar = () => {
     };
   }, []);
 
+  // Gestion du clic sur les liens de navigation
   const handleNavClick = (event, target) => {
     event.preventDefault();
 
@@ -123,8 +125,7 @@ const NavBar = () => {
     if (!targetElement) return;
 
     const rect = targetElement.getBoundingClientRect();
-    const navHeight = navHeightRef.current;
-    const offset = rect.top + window.scrollY - navHeight;
+    const offset = rect.top + window.scrollY;
 
     window.scrollTo({
       top: offset,
@@ -132,6 +133,7 @@ const NavBar = () => {
     });
   };
 
+  // Rendu du composant
   return (
     <header className={`site-nav${isVisible ? " site-nav--visible" : ""}`}>
       <nav className="site-nav__inner">

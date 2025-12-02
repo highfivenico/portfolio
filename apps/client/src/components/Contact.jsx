@@ -65,6 +65,7 @@ const Contact = () => {
     };
   }, []);
 
+  // Rendu du composant
   return (
     <footer
       className="contact"

@@ -16,7 +16,7 @@ const ProjectModal = ({ isOpen, onRequestClose, project, loading, error }) => {
     }
   }, [isOpen, project]);
 
-  // Permet d'avoir toujours un tableau
+  // Permet d'avoir toujours un tableau de sections
   let sections = [];
   if (project && Array.isArray(project.sections)) {
     sections = project.sections;
@@ -40,6 +40,7 @@ const ProjectModal = ({ isOpen, onRequestClose, project, loading, error }) => {
     });
   }
 
+  // Ajout des images de la section galerie
   if (gallerySection && Array.isArray(gallerySection.images)) {
     gallerySection.images.forEach((image) => {
       let src = "";
@@ -58,6 +59,7 @@ const ProjectModal = ({ isOpen, onRequestClose, project, loading, error }) => {
     });
   }
 
+  // Rendu de la modale
   return (
     <Modal
       isOpen={isOpen}

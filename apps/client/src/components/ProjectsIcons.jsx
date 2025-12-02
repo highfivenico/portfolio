@@ -4,7 +4,7 @@ import Draggable from "gsap/Draggable";
 
 gsap.registerPlugin(Draggable);
 
-// Helpers utilitaires GSAP
+// Utilitaires GSAP
 const { random, clamp } = gsap.utils;
 
 // Layout global des icônes
@@ -79,6 +79,7 @@ const ProjectsIcons = () => {
   const isPageVisibleRef = useRef(true);
   const isSimActiveRef = useRef(true); // true si la simulation doit tourner (viewport + onglet visibles)
 
+  // Initialise le moteur physique des icônes
   useLayoutEffect(() => {
     const area = areaRef.current;
     if (!area) return;
@@ -136,10 +137,13 @@ const ProjectsIcons = () => {
         // Coordonnées de centre utilisées par la physique
         x: cx,
         y: cy,
+        // Vitesse
         vx: 0,
         vy: 0,
         radius,
+        // Rotation
         angle,
+        // Vitesse angulaire
         angularVelocity: random(-20, 20),
 
         // État lié au drag
@@ -213,8 +217,7 @@ const ProjectsIcons = () => {
           body.y = cy;
 
           // Injection de vitesse pendant le drag :
-          // permet au body draggué de transmettre une poussée physique aux autres,
-          // même lors de déplacements lents.
+          // permet au body draggué de transmettre une poussée physique aux autres même lors de déplacements lents.
           body.vx = body.dragVx * DRAG.velocityFollowFactor;
           body.vy = body.dragVy * DRAG.velocityFollowFactor;
         },
@@ -225,16 +228,20 @@ const ProjectsIcons = () => {
 
           // Inertie à la fin du drag (lancer + rotation)
           if (speed > DRAG.minReleaseSpeed) {
+            // Normalise la vitesse pour obtenir un coefficient raisonnable
             const norm = speed / 500;
+            // Permet d'amplifier ou réduire la vitesse finale en restant dans un cadre
             const boost = clamp(0.4, 1, 1.1 + norm * 2);
 
             body.vx = body.dragVx * boost;
             body.vy = body.dragVy * boost;
 
+            // L'icône tourne dans le sens du geste horizontal
             const spinSign = body.dragVx >= 0 ? 1 : -1;
             body.angularVelocity += spinSign * speed * spinFactor;
           }
 
+          // Nettoyage des états du drag
           body.lastDragX = null;
           body.lastDragY = null;
           body.lastDragTime = null;
@@ -259,8 +266,10 @@ const ProjectsIcons = () => {
         return;
       }
 
+      // Delta Time en secondes
       let dt = (now - lastTime) / 1000;
       lastTime = now;
+      // Evite les gros lags
       if (dt > maxDeltaTime) dt = maxDeltaTime;
 
       const bodies = bodiesRef.current;
@@ -269,6 +278,7 @@ const ProjectsIcons = () => {
 
       // 1) Intégration (gravité, frottements, collisions murs)
       for (const body of bodies) {
+        // Si l'icône est drag elle n'est pas animé avec la physique
         if (body.isDragging) continue;
 
         const speed = Math.hypot(body.vx, body.vy);
@@ -333,6 +343,7 @@ const ProjectsIcons = () => {
           hitWall = true;
         }
 
+        // Ajout de rotation après collision en fonction de la vitesse
         if (hitWall) {
           const bounceSpin = (Math.abs(body.vx) + Math.abs(body.vy)) * 0.01;
           body.angularVelocity += (body.vx >= 0 ? 1 : -1) * bounceSpin;
@@ -354,6 +365,7 @@ const ProjectsIcons = () => {
           const minDist = bi.radius + bj.radius;
           const targetDist = minDist + minPadding;
 
+          // Il y a collision si la distance est nulle ou inferieure
           if (dist > 0 && dist < targetDist) {
             const nx = dx / dist;
             const ny = dy / dist;
@@ -362,7 +374,7 @@ const ProjectsIcons = () => {
             const biDraggingOnly = bi.isDragging && !bj.isDragging;
             const bjDraggingOnly = bj.isDragging && !bi.isDragging;
 
-            // Résolution de la pénétration (on privilégie la stabilité du drag)
+            // Résolution de la pénétration
             if (!biDraggingOnly && !bi.isLinearSleeping) {
               bi.x -= nx * overlap;
               bi.y -= ny * overlap;
@@ -384,7 +396,7 @@ const ProjectsIcons = () => {
 
               const impulseMag = Math.abs(impulse);
 
-              // Collision suffisamment marquée → sortie de repos des deux bodies
+              // Collision suffisamment marquée = sortie de repos des deux bodies
               if (impulseMag > SLEEP.collisionWakeImpulse) {
                 bi.isLinearSleeping = false;
                 bi.isAngularSleeping = false;
@@ -537,7 +549,7 @@ const ProjectsIcons = () => {
 
     area.addEventListener("mousemove", onMouseMove);
 
-    // ResizeObserver : adapte la simulation aux changements de taille de la zone
+    // ResizeObserver pour adapter la simulation aux changements de taille de la zone
     const resizeObserver = new ResizeObserver(() => {
       measureAreaSize();
 
@@ -551,7 +563,7 @@ const ProjectsIcons = () => {
         const el = body.el;
         if (!el) return;
 
-        // Taille réelle de l’icône (y compris media queries)
+        // Taille réelle de l’icône
         const iconWidth = el.offsetWidth || body.radius * 2;
         const newRadius = iconWidth * 0.5;
 
@@ -564,7 +576,7 @@ const ProjectsIcons = () => {
         const maxCenterY = floorY - newRadius;
         body.y = clamp(minCenterY, maxCenterY, body.y);
 
-        // Réveil léger + petite impulsion pour stabiliser après resize
+        // Réveil et légère impulsion pour stabiliser après resize
         body.isLinearSleeping = false;
         body.isAngularSleeping = false;
         body.linearSleepCounter = 0;
@@ -579,7 +591,7 @@ const ProjectsIcons = () => {
         body.angularVelocity *= 0.5;
       });
 
-      // On s’assure que la simulation est bien réactivée
+      // Vérifie que la simulation est bien réactivée
       isSimActiveRef.current = true;
 
       // Mise à jour des bounds Draggable
@@ -590,7 +602,7 @@ const ProjectsIcons = () => {
 
     resizeObserver.observe(area);
 
-    // Gestion de la visibilité de l’onglet
+    // Gestion de la visibilité de l’onglet pour stop l'animation
     const handleVisibility = () => {
       isPageVisibleRef.current = document.visibilityState === "visible";
       isSimActiveRef.current =
@@ -599,7 +611,7 @@ const ProjectsIcons = () => {
 
     document.addEventListener("visibilitychange", handleVisibility);
 
-    // Gestion de la présence dans le viewport
+    // Gestion de la présence dans le viewport pour stop l'animation
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -628,6 +640,7 @@ const ProjectsIcons = () => {
     };
   }, []);
 
+  // Rendu du composant
   return (
     <div className="projects__icons-area" ref={areaRef}>
       {iconsData.map((icon) => (

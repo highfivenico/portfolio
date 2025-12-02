@@ -15,7 +15,9 @@ const NotFound = () => {
     const section = sectionRef.current;
     if (!section) return;
 
+    // Evite de lancer l’anim si le composant est démonté avant l’init
     let isCancelled = false;
+
     const ctx = gsap.context(() => {}, sectionRef);
 
     const initAnimation = () => {
@@ -25,16 +27,19 @@ const NotFound = () => {
         const title = section.querySelector(".notfound__title");
         if (!title) return;
 
+        // Bounce custom
         CustomBounce.create("notFoundBounce", {
           strength: 0.6,
           squash: 1.5,
           squashID: "notFoundBounce-squash",
         });
 
+        // Split du titre en caractères
         const split = new SplitText(title, { type: "chars" });
         splitRef.current = split;
         const chars = split.chars;
 
+        // Timeline avec léger délai
         const tl = gsap.timeline({
           delay: 0.15,
           defaults: {
@@ -76,12 +81,13 @@ const NotFound = () => {
       });
     };
 
-    // Attend le chargement des fonts
+    // Attendre le chargement des fonts avant SplitText
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => {
         if (!isCancelled) initAnimation();
       });
     } else {
+      // Fallback si document.fonts n'est pas dispo
       initAnimation();
     }
 
@@ -101,6 +107,7 @@ const NotFound = () => {
     }
   };
 
+  // Rendu du composant
   return (
     <section className="notfound" ref={sectionRef}>
       <div className="notfound__container">

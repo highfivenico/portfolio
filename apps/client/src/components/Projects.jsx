@@ -8,6 +8,7 @@ import ProjectsIcons from "./ProjectsIcons";
 
 gsap.registerPlugin(Draggable, ScrollTrigger);
 
+// Composant principal de la section Projets avec carousel et modale
 const Projects = () => {
   const titleRef = useRef(null);
   const sectionRef = useRef(null);
@@ -40,10 +41,9 @@ const Projects = () => {
   });
 
   // Suivre la largeur de la fenêtre
-  const [viewportWidth, setViewportWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 0
-  );
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
 
+  // Met à jour la largeur au redimensionnement
   useEffect(() => {
     const handleResize = () => {
       setViewportWidth(window.innerWidth);
@@ -81,6 +81,7 @@ const Projects = () => {
     };
   }, []);
 
+  // Effet de parallax sur le titre
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       const section = sectionRef.current;
@@ -107,10 +108,12 @@ const Projects = () => {
     return () => ctx.revert();
   }, []);
 
+  // Effet carousel draggable
   useLayoutEffect(() => {
     // Ne rien faire tant que les projets ne sont pas chargés
     if (!projects.length) return;
 
+    // Contexte GSAP pour le carousel
     const ctx = gsap.context(() => {
       const wrapper = wrapperRef.current;
       const carousel = carouselRef.current;
@@ -123,7 +126,7 @@ const Projects = () => {
 
       const wrapperWidth = wrapper.offsetWidth;
 
-      // Mesure réelle, fiable, dans le repère du wrapper
+      // Mesure réelle dans le repère du wrapper
       const wrapperRect = wrapper.getBoundingClientRect();
 
       const cardCenters = cards.map((card) => {
@@ -140,19 +143,20 @@ const Projects = () => {
       let pressedOnCTA = false;
       let indexOnPressCTA = 0;
 
+      // Met à jour le scale des cartes en fonction de la position
       const updateScale = () => {
         const bounds = wrapper.getBoundingClientRect();
         const center = bounds.left + bounds.width / 2;
 
         const dragFactor = isDragging ? 0.97 : 1;
 
+        // Met à l'échelle chaque carte en fonction de la distance au centre
         cards.forEach((card) => {
           if (!card) return;
           const rect = card.getBoundingClientRect();
           const cardCenter = rect.left + rect.width / 2;
           const dist = Math.abs(center - cardCenter);
           const ratio = gsap.utils.clamp(0, 1, dist / (bounds.width / 2));
-
           const baseScale = 0.9 + (1.06 - 0.9) * (1 - ratio);
           const scale = baseScale * dragFactor;
 
@@ -165,6 +169,7 @@ const Projects = () => {
         });
       };
 
+      // Trouve l'index de la carte la plus proche du centre
       const getClosestIndex = () => {
         const currentX = parseFloat(gsap.getProperty(carousel, "x")) || 0;
 
@@ -182,6 +187,7 @@ const Projects = () => {
         return closestIndex;
       };
 
+      // Anime le carousel pour centrer la carte à l'index donné
       const snapToIndex = (targetIndex) => {
         const clamped = gsap.utils.clamp(
           0,
@@ -193,6 +199,7 @@ const Projects = () => {
         const currentX = parseFloat(gsap.getProperty(carousel, "x")) || 0;
         const distance = Math.abs(currentX - targetX);
 
+        // Pas d'animation si la distance est faible
         if (distance < 5) {
           isDragging = false;
           updateScale();
@@ -201,6 +208,7 @@ const Projects = () => {
 
         isDragging = false;
 
+        // Animation vers la position cible
         gsap.to(carousel, {
           x: targetX,
           duration: 0.25,
@@ -212,6 +220,7 @@ const Projects = () => {
         });
       };
 
+      // Centre la carte la plus proche
       const snapToClosest = () => {
         const idx = getClosestIndex();
         snapToIndex(idx);
@@ -270,7 +279,6 @@ const Projects = () => {
 
         onRelease: function () {
           if (pressedOnCTA) {
-            // Interaction démarrée sur le CTA la card ne bouge pas
             pressedOnCTA = false;
             snapToIndex(indexOnPressCTA);
             return;
@@ -305,6 +313,7 @@ const Projects = () => {
         snapToIndex(index);
       };
 
+      // Navigation clavier avec flèches gauche/droite
       const onKeyDown = (e) => {
         // Pas de navigation si la modale est ouverte
         if (isModalOpenRef.current) return;
@@ -337,6 +346,7 @@ const Projects = () => {
 
       window.addEventListener("keydown", onKeyDown);
 
+      // Nettoyage des listeners et Draggable au démontage
       return () => {
         window.removeEventListener("keydown", onKeyDown);
         if (draggableRef.current) {
@@ -346,10 +356,11 @@ const Projects = () => {
       };
     }, sectionRef);
 
+    // Nettoyage du contexte GSAP au démontage
     return () => ctx.revert();
   }, [viewportWidth, projects.length]); // recalcul à chaque changement de largeur
 
-  // Handler de navigation au clavier du carousel
+  // Navigation via les boutons fléchés
   const handlePrev = () => {
     apiRef.current.goToRelative(-1);
   };
@@ -384,6 +395,7 @@ const Projects = () => {
     setModalError(null);
   };
 
+  // Rendu du composant
   return (
     <section className="projects" ref={sectionRef} id="projects">
       <h2 className="projects__title" ref={titleRef}>
@@ -431,7 +443,6 @@ const Projects = () => {
                     }
                   }}
                   tabIndex={0}
-                  // role="button"
                   aria-label={`Voir les détails du projet ${project.title}`}
                 >
                   <div className="project-card__head">

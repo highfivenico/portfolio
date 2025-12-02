@@ -14,6 +14,7 @@ const About = () => {
     const section = sectionRef.current;
     if (!section) return;
 
+    // Evite de lancer l’anim si le composant est démonté avant l’init
     let isCancelled = false;
 
     const ctx = gsap.context(() => {}, sectionRef);
@@ -114,6 +115,7 @@ const About = () => {
     };
   }, []);
 
+  // Rendu du composant
   return (
     <section className="about" ref={sectionRef} id="about">
       <h2 className="about__title">ABOUT</h2>

@@ -5,6 +5,28 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 /* -------------------------------------------------------
+   Constantes globales
+   ------------------------------------------------------- */
+
+// Paramètres réutilisables pour l’effet de déformation du hero
+const CONFIG = Object.freeze({
+  MIN_VELOCITY: 500, // vitesse minimale pour déclencher la déformation
+  MAX_VELOCITY: 1500, // vitesse à laquelle la déformation atteint son max
+  SCALE_X_RANGE: 0.15, // amplitude stretch horizontal
+  SCALE_Y_RANGE: 0.08, // amplitude squash vertical
+  SKEW_ANGLE: 18, // angle max de skew
+  LETTER_SPACING_DELTA_MAX: 0.2, // tracking dynamique max
+  RESET_DELAY: 0.05, // délai avant le retour à l’état normal
+  RESET_DURATION: 0.1, // durée du retour principal
+  INERTIA_STRENGTH: 0.2, // réduit la force du retour (0.4–0.7 = doux)
+  MIN_INERTIA_INTENSITY: 0.2, // pas d’overshoot en dessous de ce seuil
+});
+
+// Email anti-spam
+const EMAIL_USER = "highfivenico";
+const EMAIL_DOMAIN = "gmail.com";
+
+/* -------------------------------------------------------
    Button Hover Animation
 ---------------------------------------------------------*/
 class Button {
@@ -22,17 +44,18 @@ class Button {
       flair: el(".button__flair"),
     };
 
-    // quickSetter = MAINTIENT de hautes performances pour
-    // les mises à jour x/y en continu pendant mousemove
+    // quickSetter = MAINTIENT de hautes performances pour les mises à jour x/y en continu pendant mousemove
     this.xSet = gsap.quickSetter(this.DOM.flair, "xPercent");
     this.ySet = gsap.quickSetter(this.DOM.flair, "yPercent");
   }
 
-  // Convertit la position du curseur en pourcentage relatif
+  // Convertit la position du curseur en pourcentage dans le bouton
   getXY(e) {
+    // Emplacement et dimensions du bouton
     const { left, top, width, height } =
       this.DOM.button.getBoundingClientRect();
 
+    // Transformeurs de position en pourcentage
     const xTransformer = gsap.utils.pipe(
       gsap.utils.mapRange(0, width, 0, 100),
       gsap.utils.clamp(0, 100)
@@ -49,6 +72,7 @@ class Button {
     };
   }
 
+  // Initialisation des événements de la souris
   initEvents() {
     // Effet à l'entrée
     this.DOM.button.addEventListener("mouseenter", (e) => {
@@ -69,7 +93,7 @@ class Button {
 
       gsap.killTweensOf(this.DOM.flair);
 
-      // Petit "shoot" vers l'extérieur selon la position
+      // Retour au centre avec un léger dépassement si proche des bords
       gsap.to(this.DOM.flair, {
         xPercent: x > 90 ? x + 20 : x < 10 ? x - 20 : x,
         yPercent: y > 90 ? y + 20 : y < 10 ? y - 20 : y,
@@ -110,33 +134,16 @@ const Hero = () => {
   // Bloc de contenu (texte + bouton)
   const contentRef = useRef(null);
 
-  // Email anti-spam
-  const EMAIL_USER = "highfivenico";
-  const EMAIL_DOMAIN = "gmail.com";
-
   const handleHeroMailClick = (event) => {
     event.preventDefault();
     window.location.href = `mailto:${EMAIL_USER}@${EMAIL_DOMAIN}`;
   };
 
-  // Paramètres réutilisables pour tout l’effet
-  const CONFIG = {
-    MIN_VELOCITY: 500, // vitesse minimale pour déclencher la déformation
-    MAX_VELOCITY: 1500, // vitesse à laquelle la déformation atteint son max
-    SCALE_X_RANGE: 0.15, // amplitude stretch horizontal
-    SCALE_Y_RANGE: 0.08, // amplitude squash vertical
-    SKEW_ANGLE: 18, // angle max de skew
-    LETTER_SPACING_DELTA_MAX: 0.2, // tracking dynamique max
-    RESET_DELAY: 0.05, // délai avant le retour à l’état normal
-    RESET_DURATION: 0.1, // durée du retour principal
-    INERTIA_STRENGTH: 0.2, // réduit la force du retour (0.4–0.7 = doux)
-    MIN_INERTIA_INTENSITY: 0.2, // pas d’overshoot en dessous de ce seuil
-  };
-
   /* -------------------------------------------------------
-     Main GSAP scroll effect
+     Effet de scroll GSAP
   ---------------------------------------------------------*/
   useLayoutEffect(() => {
+    // Contexte GSAP pour faciliter le démontage des animations
     const ctx = gsap.context(() => {
       const innerTargets = [
         wordPrimaryInnerRef.current,
@@ -188,7 +195,7 @@ const Hero = () => {
           return;
         }
 
-        // Il y a eu une vraie déformation → inertie douce
+        // Si il y a eu une vraie déformation = inertie douce
         const inertiaIntensity = lastIntensity * CONFIG.INERTIA_STRENGTH;
 
         resetCall = gsap.delayedCall(CONFIG.RESET_DELAY, () => {
@@ -202,7 +209,7 @@ const Hero = () => {
             },
           });
 
-          // Overshoot (beaucoup plus léger qu’avant)
+          // Overshoot
           tl.to(
             innerTargets,
             {
@@ -256,6 +263,7 @@ const Hero = () => {
       /* -------------------------------------------------------
          ScrollTrigger principal
       ---------------------------------------------------------*/
+      // Timeline principale du scroll
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: heroRef.current,
@@ -269,7 +277,7 @@ const Hero = () => {
             const velocity = self.getVelocity();
             const speed = Math.abs(velocity);
 
-            // Trop lent → pas de déformation, pas d’inertie "forte"
+            // Si le scroll est trop lent il n’y a pas de déformation
             if (speed < CONFIG.MIN_VELOCITY) {
               gsap.set(innerTargets, {
                 scaleX: 1,
@@ -278,18 +286,15 @@ const Hero = () => {
                 "--hero-letter-spacing-delta": "0em",
               });
 
-              // Si aucune vraie déformation n'a eu lieu pendant ce scroll,
-              // on s'assure qu'il n'y aura pas d’overshoot ensuite
+              // Si aucune déformation pendant le scroll il n'y a pas d’overshoot
               if (!hadDeformation) {
                 lastIntensity = 0;
               }
 
-              // IMPORTANT : on ne rappelle pas scheduleReset ici,
-              // il a déjà été programmé pendant la vraie déformation.
               return;
             }
 
-            // Ici, on est au-dessus du seuil → on déforme
+            // Si le scroll est rapide il y a déformation
             const intensity = gsap.utils.clamp(
               0,
               1,
@@ -303,10 +308,11 @@ const Hero = () => {
 
             applyDeformation(intensity, direction);
 
-            // L’inertie ne se programme QUE quand on a réellement déformé
+            // L’inertie a lieu si le scroll est rapide puis s’arrête
             scheduleReset();
           },
 
+          // Réinitialise l’effet quand le ScrollTrigger sort de la zone, revient en arrière, est détruit ou recalculé (resize/refresh).
           onLeave: immediateReset,
           onLeaveBack: immediateReset,
           onKill: immediateReset,
@@ -314,7 +320,7 @@ const Hero = () => {
         },
       });
 
-      // Mot du haut → vers la gauche
+      // Mot du haut part vers la gauche
       tl.to(
         wordPrimaryRef.current,
         {
@@ -325,7 +331,7 @@ const Hero = () => {
         0
       );
 
-      // Mot du bas → vers la droite
+      // Mot du bas part vers la droite
       tl.to(
         wordSecondaryRef.current,
         {
@@ -364,6 +370,7 @@ const Hero = () => {
       );
     }, heroRef);
 
+    // Nettoyage des animations GSAP au démontage du composant
     return () => ctx.revert();
   }, []);
 
@@ -377,6 +384,7 @@ const Hero = () => {
     }
   }, []);
 
+  // Rendu du composant
   return (
     <section className="hero" ref={heroRef}>
       {/* Mot du haut */}
