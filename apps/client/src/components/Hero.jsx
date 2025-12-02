@@ -8,14 +8,22 @@ gsap.registerPlugin(ScrollTrigger);
    Constantes globales
    ------------------------------------------------------- */
 
+// Vérifie si le navigateur pour gérer l'animation du Hero
+const IS_BROWSER =
+  typeof window !== "undefined" && typeof navigator !== "undefined";
+
+const IS_CHROME =
+  IS_BROWSER &&
+  /Chrome/.test(navigator.userAgent) &&
+  /Google Inc/.test(navigator.vendor);
+
 // Paramètres réutilisables pour l’effet de déformation du hero
 const CONFIG = Object.freeze({
   MIN_VELOCITY: 500, // vitesse minimale pour déclencher la déformation
   MAX_VELOCITY: 1500, // vitesse à laquelle la déformation atteint son max
-  SCALE_X_RANGE: 0.15, // amplitude stretch horizontal
-  SCALE_Y_RANGE: 0.08, // amplitude squash vertical
-  SKEW_ANGLE: 18, // angle max de skew
-  LETTER_SPACING_DELTA_MAX: 0.2, // tracking dynamique max
+  SCALE_X_RANGE: 0.08, // amplitude stretch horizontal
+  SCALE_Y_RANGE: 0.04, // amplitude squash vertical
+  SKEW_ANGLE: 8, // angle max de skew
   RESET_DELAY: 0.05, // délai avant le retour à l’état normal
   RESET_DURATION: 0.1, // durée du retour principal
   INERTIA_STRENGTH: 0.2, // réduit la force du retour (0.4–0.7 = doux)
@@ -143,6 +151,8 @@ const Hero = () => {
      Effet de scroll GSAP
   ---------------------------------------------------------*/
   useLayoutEffect(() => {
+    if (!heroRef.current) return;
+
     // Contexte GSAP pour faciliter le démontage des animations
     const ctx = gsap.context(() => {
       const innerTargets = [
@@ -150,6 +160,7 @@ const Hero = () => {
         wordSecondaryInnerRef.current,
       ];
 
+      // Déformation pour Chrome uniquement
       let resetCall = null;
       let lastIntensity = 0;
       let lastDirection = 1;
@@ -161,21 +172,19 @@ const Hero = () => {
         const scaleX = 1 + intensity * CONFIG.SCALE_X_RANGE;
         const scaleY = 1 - intensity * CONFIG.SCALE_Y_RANGE;
         const skewX = direction * -CONFIG.SKEW_ANGLE * intensity;
-        const letterSpacingDelta = CONFIG.LETTER_SPACING_DELTA_MAX * intensity;
 
         gsap.set(innerTargets, {
           scaleX,
           scaleY,
           skewX,
-          "--hero-letter-spacing-delta": `${letterSpacingDelta}em`,
           transformOrigin: "center center",
           overwrite: "auto",
         });
       };
 
       /* -------------------------------------------------------
-         Retour progressif à l'état normal (inertie)
-      ---------------------------------------------------------*/
+       Retour progressif à l'état normal (inertie)
+    ---------------------------------------------------------*/
       const scheduleReset = () => {
         if (resetCall) resetCall.kill();
 
@@ -187,7 +196,6 @@ const Hero = () => {
               scaleX: 1,
               scaleY: 1,
               skewX: 0,
-              "--hero-letter-spacing-delta": "0em",
             });
             hadDeformation = false;
             lastIntensity = 0;
@@ -217,9 +225,6 @@ const Hero = () => {
               scaleY: 1 + inertiaIntensity * CONFIG.SCALE_Y_RANGE * 0.4,
               skewX:
                 -lastDirection * CONFIG.SKEW_ANGLE * inertiaIntensity * 0.5,
-              "--hero-letter-spacing-delta": `${
-                -CONFIG.LETTER_SPACING_DELTA_MAX * inertiaIntensity * 0.4
-              }em`,
               duration: CONFIG.RESET_DURATION,
               ease: "power2.inOut",
               overwrite: "auto",
@@ -234,7 +239,6 @@ const Hero = () => {
               scaleX: 1,
               scaleY: 1,
               skewX: 0,
-              "--hero-letter-spacing-delta": "0em",
               duration: 0.18,
               ease: "power2.out",
               overwrite: "auto",
@@ -255,69 +259,71 @@ const Hero = () => {
             scaleX: 1,
             scaleY: 1,
             skewX: 0,
-            "--hero-letter-spacing-delta": "0em",
           });
         }
       };
 
       /* -------------------------------------------------------
-         ScrollTrigger principal
-      ---------------------------------------------------------*/
-      // Timeline principale du scroll
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom+=80% top",
-          scrub: true,
-          pin: true,
+       ScrollTrigger principal (config commune)
+    ---------------------------------------------------------*/
+      const scrollTriggerConfig = {
+        trigger: heroRef.current,
+        start: "top top",
+        end: "bottom+=80% top",
+        scrub: true,
+        pin: true,
 
-          // Appelé à chaque frame pendant le scroll
-          onUpdate: (self) => {
-            const velocity = self.getVelocity();
-            const speed = Math.abs(velocity);
+        // Réinitialise l’effet quand le ScrollTrigger sort de la zone, revient en arrière, est détruit ou recalculé (resize/refresh).
+        onLeave: immediateReset,
+        onLeaveBack: immediateReset,
+        onKill: immediateReset,
+        onRefresh: immediateReset,
+      };
 
-            // Si le scroll est trop lent il n’y a pas de déformation
-            if (speed < CONFIG.MIN_VELOCITY) {
-              gsap.set(innerTargets, {
-                scaleX: 1,
-                scaleY: 1,
-                skewX: 0,
-                "--hero-letter-spacing-delta": "0em",
-              });
+      // Déformation uniquement sur Chrome : onUpdate est défini
+      if (IS_CHROME) {
+        // Appelé à chaque frame pendant le scroll
+        scrollTriggerConfig.onUpdate = (self) => {
+          const velocity = self.getVelocity();
+          const speed = Math.abs(velocity);
 
-              // Si aucune déformation pendant le scroll il n'y a pas d’overshoot
-              if (!hadDeformation) {
-                lastIntensity = 0;
-              }
+          // Si le scroll est trop lent il n’y a pas de déformation
+          if (speed < CONFIG.MIN_VELOCITY) {
+            gsap.set(innerTargets, {
+              scaleX: 1,
+              scaleY: 1,
+              skewX: 0,
+            });
 
-              return;
+            // Si aucune déformation pendant le scroll il n'y a pas d’overshoot
+            if (!hadDeformation) {
+              lastIntensity = 0;
             }
 
-            // Si le scroll est rapide il y a déformation
-            const intensity = gsap.utils.clamp(
-              0,
-              1,
-              speed / CONFIG.MAX_VELOCITY
-            );
-            const direction = Math.sign(velocity) || 1;
+            return;
+          }
 
-            lastIntensity = intensity;
-            lastDirection = direction;
-            hadDeformation = true;
+          // Si le scroll est rapide il y a déformation
+          const intensity = gsap.utils.clamp(0, 1, speed / CONFIG.MAX_VELOCITY);
+          const direction = Math.sign(velocity) || 1;
 
-            applyDeformation(intensity, direction);
+          lastIntensity = intensity;
+          lastDirection = direction;
+          hadDeformation = true;
 
-            // L’inertie a lieu si le scroll est rapide puis s’arrête
-            scheduleReset();
-          },
+          applyDeformation(intensity, direction);
 
-          // Réinitialise l’effet quand le ScrollTrigger sort de la zone, revient en arrière, est détruit ou recalculé (resize/refresh).
-          onLeave: immediateReset,
-          onLeaveBack: immediateReset,
-          onKill: immediateReset,
-          onRefresh: immediateReset,
-        },
+          // L’inertie a lieu si le scroll est rapide puis s’arrête
+          scheduleReset();
+        };
+      }
+      // Pour les navigateurs non-Chrome : pas de onUpdate donc pas de scale/skew pendant le scroll
+
+      /* -------------------------------------------------------
+       Timeline principale du scroll
+    ---------------------------------------------------------*/
+      const tl = gsap.timeline({
+        scrollTrigger: scrollTriggerConfig,
       });
 
       // Mot du haut part vers la gauche

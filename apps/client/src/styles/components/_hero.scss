@@ -6,7 +6,7 @@
   position: relative;
   height: 100vh;
   overflow: hidden;
-  background: linear-gradient(180deg, #fefefe 0%, #fffdfa 100%);
+  background: $color-white;
   display: flex;
   flex-direction: column;
   z-index: 2;
@@ -14,7 +14,7 @@
   // Variables CSS pour les transformations
   --word-scale-x: 1;
   --hero-letter-spacing-base: -0.01em;
-  --hero-letter-spacing-delta: 0em;
+  // --hero-letter-spacing-delta: 0em;
 
   // Responsive
   @media (max-width: 1400px) {
@@ -57,9 +57,10 @@
   white-space: nowrap;
   display: inline-block;
   user-select: none;
-  color: $color-white;
-  text-shadow: -1px -1px 3px rgba(42, 42, 42, 0.15),
-    4px 8px 10px rgba(24, 24, 24, 0.42);
+  color: #fffdfa;
+  text-shadow: 0 4px 8px rgba(24, 24, 24, 0.25);
+  // text-shadow: -1px -1px 3px rgba(42, 42, 42, 0.15),
+  //   4px 8px 10px rgba(24, 24, 24, 0.42);
   transform-origin: center center; /* Permet GSAP de bien centrer les transformations */
   transform: scaleX(var(--word-scale-x));
   will-change: transform; /* Optimise les performances lors de nombreuses transformations */
@@ -68,9 +69,10 @@
 .hero__word-inner {
   display: inline-block;
   will-change: transform, letter-spacing;
-  letter-spacing: calc(
-    var(--hero-letter-spacing-base) + var(--hero-letter-spacing-delta)
-  );
+  letter-spacing: var(--her-letter-spacing-base);
+  // letter-spacing: calc(
+  //   var(--hero-letter-spacing-base) + var(--hero-letter-spacing-delta)
+  // );
 }
 .hero__word--primary {
   transform-origin: left center;
@@ -83,7 +85,8 @@
 }
 
 .hero__word-highlight {
-  color: #117dac;
+  // color: #117dac;
+  color: $color-black;
 }
 
 /* =========================================
